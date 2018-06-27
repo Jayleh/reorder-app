@@ -1,5 +1,7 @@
 import datetime as dt
 import pandas as pd
+from rq import Queue
+from worker import conn
 from config import api_id, api_key
 from api import UnleashedApi
 
@@ -170,7 +172,11 @@ def create_full_table(num_months):
 
     stock_df = pd.DataFrame(stock_data)
 
-    sell_through_data = get_sell_through(num_months)
+    # sell_through_data = get_sell_through(num_months)
+
+    # Queue a worker
+    q = Queue(connection=conn)
+    sell_through_data = q.enqueue(get_sell_through, num_months)
 
     sell_through_df = pd.DataFrame(sell_through_data)
 

@@ -2,8 +2,6 @@ from flask import Flask, render_template, jsonify, redirect
 from flask_pymongo import PyMongo
 from scrape import get_stock, get_sell_through, scrape
 from config import mongodb_name, mongo_uri
-from rq import Queue
-from worker import conn
 
 
 app = Flask(__name__)
@@ -55,10 +53,6 @@ def update(num_months):
 
     # Call scrape function to return all reorder data
     data = scrape(num_months)
-
-    # Queue a worker
-    q = Queue(connection=conn)
-    result = q.enqueue(scrape, num_months)
 
     # Update reorder collection with reorder data
     reorder.update(
