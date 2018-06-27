@@ -1,10 +1,11 @@
 from flask import Flask, render_template, jsonify, redirect
 from flask_pymongo import PyMongo
 from scrape import get_stock, get_sell_through, scrape
-from config import mongo_uri
+from config import mongodb_name, mongo_uri
 
 app = Flask(__name__)
 
+app.config['MONGO_DBNAME'] = mongodb_name
 app.config["MONGO_URI"] = mongo_uri
 
 mongo = PyMongo(app)
