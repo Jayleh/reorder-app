@@ -4,6 +4,20 @@ from config import api_id, api_key
 from api import UnleashedApi
 
 
+# hard code bills of materials essentially
+kit_boms = {
+    "AAPRSSKT": {"AAPRSE30ML": 1, "AAPRAS30ML": 1},
+    "AAPRSAKT": {"AAPRSE30ML": 1, "AAPRAC30ML": 1},
+    "AAPRMFKT": {"AACL480ML": 1, "AAPRMABX": 1, "AAPRMBBX": 1, "AAPRMCBX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 15},
+    "AAPRMCKT": {"AACL480ML": 1, "AAPRMCBX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 5},
+    "AAPRMBKT": {"AACL480ML": 1, "AAPRMBBX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 5},
+    "AAPRMAKT": {"AACL480ML": 1, "AAPRMABX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 5},
+    "AAMDSAKT": {"AAMDSE30ML": 1, "AAMDAC30ML": 1},
+    "AAMDSSKT": {"AAMDSE30ML": 1, "AAMDAS30ML": 1},
+    "AAHMHSKT": {"AAHMHSBX": 1, "DVAAMNST0.25MM": 1}
+}
+
+
 def get_stock():
 
     # Unleashed api base url
@@ -107,15 +121,45 @@ def get_sell_through(num_months):
 
     df = pd.DataFrame(sell_through)
 
+    # Drop nan values
+    df = df.dropna().reset_index(drop=True)
+
+    reduced_order_quantities = []
+
     for i, row in df.iterrows():
+
+        product = row["product_code"]
+        product_order_quantity = row["order_quantity"]
+        completed_date = row["completed_date"]
+
+        for finished_product, children in kit_boms.items():
+
+            if product == finished_product:
+
+                for child, quantity in children.items():
+
+                    added_quantities = {
+                        "product_code": child,
+                        "order_quantity": quantity * product_order_quantity,
+                        "completed_date": completed_date
+                    }
+
+                    reduced_order_quantities.append(added_quantities)
+
+    reduced_order_quantities_df = pd.DataFrame(reduced_order_quantities)
+
+    # stack the DataFrames on top of each other
+    concat_df = pd.concat([df, reduced_order_quantities_df], axis=0)
+
+    for i, row in concat_df.iterrows():
 
         completed_date = row["completed_date"]
 
         converted_timestamp = format_date(completed_date)
 
-        df.at[df.index[i], 'completed_date'] = converted_timestamp
+        concat_df.at[concat_df.index[i], 'completed_date'] = converted_timestamp
 
-    grouped_prod_date = df.groupby(["product_code", "completed_date"])
+    grouped_prod_date = concat_df.groupby(["product_code", "completed_date"])
 
     grouped_prod_date = grouped_prod_date.sum()
 
@@ -192,61 +236,6 @@ def create_full_table(num_months):
 
     merged_df = merged_df[["product_code", "description", "stock_on_hand", "threshold", "display_percentage", "allocated_quantity",
                            "order_quantity", "num_months", "avg_monthly_usage", "max_monthly_usage", "lead_time_demand", "safety_stock"]]
-
-    # Hard coded kit bills of materials
-    kit_boms = {
-        "AAPRSSKT": {"AAPRSE30ML": 1, "AAPRAS30ML": 1},
-        "AAPRSAKT": {"AAPRSE30ML": 1, "AAPRAC30ML": 1},
-        "AAPRMFKT": {"AACL480ML": 1, "AAPRMABX": 1, "AAPRMBBX": 1, "AAPRMCBX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 15},
-        "AAPRMCKT": {"AACL480ML": 1, "AAPRMCBX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 5},
-        "AAPRMBKT": {"AACL480ML": 1, "AAPRMBBX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 5},
-        "AAPRMAKT": {"AACL480ML": 1, "AAPRMABX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 5},
-        "AAMDSAKT": {"AAMDSE30ML": 1, "AAMDAC30ML": 1},
-        "AAMDSSKT": {"AAMDSE30ML": 1, "AAMDAS30ML": 1},
-        "AAHMHSKT": {"AAHMHSBX": 1, "DVAAMNST0.25MM": 1}
-    }
-
-    reduced_order_quantities = []
-
-    for i, row in merged_df.iterrows():
-
-        product = row["product_code"]
-        product_order_quantity = row["order_quantity"]
-
-        for finished_product, children in kit_boms.items():
-
-            if product == finished_product:
-
-                for child, quantity in children.items():
-
-                    added_quantities = {
-                        "product_code": child,
-                        "order_quantity": quantity * product_order_quantity
-                    }
-
-                    reduced_order_quantities.append(added_quantities)
-
-    reduced_order_quantities_df = pd.DataFrame(reduced_order_quantities)
-
-    reduced_grouped_df = reduced_order_quantities_df.groupby(["product_code"]).sum()
-
-    reduced_grouped_df = reduced_grouped_df.reset_index()
-
-    for i, row in merged_df.iterrows():
-
-        merged_code = row["product_code"]
-        merged_order_quantity = row["order_quantity"]
-
-        for j, line in reduced_grouped_df.iterrows():
-
-            reduced_code = line["product_code"]
-            reduced_order_quantity = line["order_quantity"]
-
-            if merged_code == reduced_code:
-
-                new_quantity = merged_order_quantity + reduced_order_quantity
-
-                merged_df.at[merged_df.index[i], 'order_quantity'] = new_quantity
 
     kit_list = [key for key in kit_boms.keys()]
 
