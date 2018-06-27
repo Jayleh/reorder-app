@@ -70,7 +70,8 @@ def get_date_range(num_months):
 
     calc_start_date = today - dt.timedelta(days=days)
 
-    start_date = dt.datetime(calc_start_date.year, calc_start_date.month, 1) - dt.timedelta(days=1)
+    start_date = dt.datetime(calc_start_date.year, calc_start_date.month,
+                             1) - dt.timedelta(days=1) - dt.timedelta(hours=7)
 
     start_date = str(start_date)[:10]
 
@@ -253,7 +254,9 @@ def create_full_table(num_months):
 def scrape(num_months):
     data = {}
 
-    last_update = dt.datetime.today().strftime("%Y-%m-%d %H:%M:%S.%f")
+    last_update = dt.datetime.today() - dt.timedelta(hours=7)
+    last_update = last_update.strftime("%Y-%m-%d %H:%M:%S.%f")
+
     reorder_data = create_full_table(num_months)
 
     data["months_past_sellthrough"] = num_months
