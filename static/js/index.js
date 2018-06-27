@@ -24,13 +24,6 @@ d3.json('/all-data', (error, data) => {
     });
 });
 
-let sel = d3.select('#group-select');
-
-sel.on('change', () => {
-    d3.select('#update-btn')
-        .attr('href', this.value);
-});
-
 let sel = document.getElementById('group-select');
 
 sel.onchange = function () {
