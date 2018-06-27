@@ -31,4 +31,10 @@ sel.on('change', () => {
         .attr('href', this.value);
 });
 
+let sel = document.getElementById('group-select');
+
+sel.onchange = function () {
+    document.getElementById("update-btn").href = this.value;
+}
+
 // TODO: learn promises, async, await in order to do color highlighting
