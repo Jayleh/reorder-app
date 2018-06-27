@@ -54,11 +54,13 @@ def update(num_months):
     reorder = mongo.db.reorder
 
     # Call scrape function to return all reorder data
-    # data = scrape(num_months)
-    q = Queue(connection=conn)
-    data = q.enqueue(scrape, num_months)
+    data = scrape(num_months)
 
-# Update reorder collection with reorder data
+    # Queue a worker
+    q = Queue(connection=conn)
+    result = q.enqueue(scrape, num_months)
+
+    # Update reorder collection with reorder data
     reorder.update(
         {},
         data,
