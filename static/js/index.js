@@ -24,4 +24,11 @@ d3.json('/all-data', (error, data) => {
     });
 });
 
+let sel = d3.select('#group-select');
+
+sel.on('change', () => {
+    d3.select('#update-btn')
+        .attr('href', this.value);
+});
+
 // TODO: learn promises, async, await in order to do color highlighting
