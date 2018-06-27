@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+#title h1 {
+    font-size: 24px;
+    padding: 5px 0;
+    margin: 0;
+    text-align: center;
+}
+
+#update-time p {
+    font-size: 12px;
+    color: lightgray;
+    padding: 5px 0;
+    margin: 0;
+}
+
+th {
+    white-space: nowrap;
+}
+
+td {
+    max-width: 300px;
+    overflow: hidden; 
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: inherit;
+    font-size: 14px;
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) {
+
+    td {
+        max-width: 235px;
+        overflow: hidden; 
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        width: inherit;
+    }
+
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+
+    td {
+        max-width: 335px;
+        overflow: hidden; 
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        width: inherit;
+    }
+    
+    #title h1 {
+        font-size: 2rem;
+        padding: 1.3rem 0;
+        margin: 0;
+        text-align: center;
+    }
+
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+
+    td {
+        max-width: 362px;
+        overflow: hidden; 
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        width: inherit;
+    }
+
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    
+    th {
+        white-space: pre-wrap;
+    }
+
+    td {
+        max-width: 100%;
+        overflow: hidden; 
+        text-overflow: ellipsis;
+        width: inherit;
+        font-size: 16px;
+    }
+
+}
