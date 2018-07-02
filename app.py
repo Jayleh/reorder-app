@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, redirect
 from flask_pymongo import PyMongo
-from scrape import get_stock, get_sell_through, scrape
+from scrape_test import get_stock, get_sell_through, format_sell_through, scrape
 from config import mongodb_name, mongo_uri
 
 
@@ -28,10 +28,14 @@ def stock_on_hand():
     return jsonify(stock_data)
 
 
-@app.route("/sell-through/<num_months>")
+app.route("/sell-through/<num_months>")
+
+
 def sales_orders(num_months):
 
-    sell_through_data = get_sell_through(num_months)
+    sell_through = get_sell_through(num_months)
+
+    sell_through_data = format_sell_through(sell_through)
 
     return jsonify(sell_through_data)
 
