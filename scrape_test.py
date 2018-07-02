@@ -338,7 +338,9 @@ def create_full_table(num_months):
 def scrape(num_months):
     data = {}
 
-    last_update = dt.datetime.today().strftime("%Y-%m-%d %H:%M:%S.%f")
+    last_update = dt.datetime.today() - dt.timedelta(hours=7)
+    last_update = last_update.strftime("%Y-%m-%d %H:%M:%S.%f")
+
     reorder_data = create_full_table(num_months)
 
     data["months_past_sellthrough"] = num_months
