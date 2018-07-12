@@ -6,7 +6,7 @@ import datetime as dt
 import aiohttp
 import pandas as pd
 import datedelta
-from config import api_id, api_key
+from reorder.config import api_id, api_key
 
 
 def configure_request(url):
