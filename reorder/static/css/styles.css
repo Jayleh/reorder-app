@@ -31,6 +31,10 @@ td {
     font-size: 14px;
 }
 
+#logout-btn-container {
+    margin-bottom: 15px;
+}
+
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) {
 
