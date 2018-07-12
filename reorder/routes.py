@@ -53,6 +53,7 @@ def logout():
 
 
 @app.route("/stock-on-hand")
+@login_required
 def stock_on_hand():
 
     stock_data = get_stock()
@@ -61,6 +62,7 @@ def stock_on_hand():
 
 
 @app.route("/sell-through/<num_months>")
+@login_required
 def sales_orders(num_months):
 
     sell_through = get_sell_through(num_months)
@@ -71,6 +73,7 @@ def sales_orders(num_months):
 
 
 @app.route("/all-data")
+@login_required
 def all_data():
     # Find reorder dictionary in mongodb
     reorder = mongo.db.reorder.find_one()
@@ -81,6 +84,7 @@ def all_data():
 
 
 @app.route("/update/<num_months>")
+@login_required
 def update(num_months):
     # Create reorder collection
     reorder = mongo.db.reorder
