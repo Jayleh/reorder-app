@@ -41,11 +41,20 @@ async def fetch(session, url):
         return await resp.json()
 
 
-async def splice_stock(stock_on_hand):
+async def splice_stock(brand, stock_on_hand):
 
     stock_data = []
 
-    product_groups = ['|AnteAGE Home', '|AnteAGE Pro', '|AnteAGE MD']
+    if brand == "AnteAGE":
+        product_groups = ['|AnteAGE Home', '|AnteAGE Pro', '|AnteAGE MD']
+    elif brand == "CytoPro":
+        product_groups = ['|CytoPro - Pilica']
+    elif brand == "ProCell":
+        product_groups = ['|ProCell']
+    elif brand == "SkinGen":
+        product_groups = ['|SkinGen']
+    elif brand == "Venus":
+        product_groups = ['|Venus Skin']
 
     for response in stock_on_hand:
 
@@ -75,7 +84,7 @@ async def get_stock_urls(session, url):
         return my_list
 
 
-async def run_stock():
+async def run_stock(brand):
     url = f"https://api.unleashedsoftware.com/StockOnHand/1?pageSize=200"
     async with aiohttp.ClientSession() as session:
         urls = await get_stock_urls(session, url)
@@ -84,16 +93,16 @@ async def run_stock():
         tasks = [asyncio.ensure_future(fetch(session, url)) for url in urls]
         stock_on_hand = await asyncio.gather(*tasks)
 
-        stock_data = await splice_stock(stock_on_hand)
+        stock_data = await splice_stock(brand, stock_on_hand)
 
         return stock_data
 
 
-def get_stock():
+def get_stock(brand):
     # loop = asyncio.get_event_loop()
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    stock_data = loop.run_until_complete(run_stock())
+    stock_data = loop.run_until_complete(run_stock(brand))
     loop.close()
 
     print("get_stock completed")
@@ -292,8 +301,8 @@ def get_percentage(stock_on_hand, threshold, lead_time_demand):
         return reorder_percentage
 
 
-def create_full_table(num_months):
-    stock_data = get_stock()
+def create_full_table(brand, num_months):
+    stock_data = get_stock(brand)
 
     sell_through = get_sell_through(num_months)
 
@@ -335,14 +344,13 @@ def create_full_table(num_months):
     return combined_data
 
 
-def scrape(num_months):
+def scrape(brand, num_months):
     data = {}
 
-    last_update = dt.datetime.today() - dt.timedelta(hours=7)
-    last_update = last_update.strftime("%Y-%m-%d %H:%M:%S.%f")
+    last_update = dt.datetime.today().strftime("%Y-%m-%d %H:%M:%S.%f")
+    reorder_data = create_full_table(brand, num_months)
 
-    reorder_data = create_full_table(num_months)
-
+    data["brand"] = brand
     data["months_past_sellthrough"] = num_months
     data["last_update"] = last_update
     data["reorder_data"] = reorder_data
@@ -353,4 +361,4 @@ def scrape(num_months):
 
 
 if __name__ == "__main__":
-    scrape(3)
+    scrape("anteage", 3)

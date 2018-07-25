@@ -1,5 +1,12 @@
-{% extends "input_layout.html" %}
-{% block content %}
+{% extends "layout.html" %}
+{% block title %}
+  <title>Cellese Login</title>
+{% endblock %}
+{% block styles %}
+  <!-- External CSS -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/logs.css') }}">
+{% endblock styles %}
+{% block main %}
   <div id="user-input-card" class="container">
     <div class="row">
       <div class="col-md-12">
@@ -69,4 +76,4 @@
       </div>
     </div> -->
   </div>
-{% endblock content %}
+{% endblock main %}

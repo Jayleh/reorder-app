@@ -1,0 +1,78 @@
+{% extends "layout.html" %} {% block title %}
+<title>{{ reorder.brand}} Reorder Points</title>
+{% endblock title %} {% block styles %}
+<!-- External styles -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}"> {% endblock styles %} {% block header %}
+<div class="container-fluid">
+  <div class="row">
+    <div id="choose-btn" class="col 12">
+      <a class="btn btn-outline-dark btn-sm" href="{{ url_for('home') }}">Choose Brand</a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col 12">
+      <div id="title">
+        <h1>
+          <span id="brand">{{ reorder.brand }}</span> Sell-Through (Past <span id="num-months">{{ reorder.months_past_sellthrough }}</span> Months)</h1>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col 12">
+      <div class="input-group">
+        <select class="custom-select" id="group-select">
+          <option selected value="javascript:void(0)">Choose...</option>
+          <option value="/update/{{ reorder.brand }}/3">Three</option>
+          <option value="/update/{{ reorder.brand }}/6">Six</option>
+          <option value="/update/{{ reorder.brand }}/12">Twelve</option>
+        </select>
+        <div class="input-group-append">
+          <a id="update-btn" href="javascript:void(0)">
+            <button class="btn btn-outline-dark" type="button">
+              <strong>Update</strong>
+            </button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col 12">
+      <div id="update-time">
+        <p class="text-right">
+          <em>{{ reorder.last_update }} PST</em>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock header %} {% block main %}
+<div class="container-fluid table-responsive">
+  <table class="table table-sm table-hover">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="text-left">Product Code</th>
+        <th class="text-left">Description</th>
+        <th class="text-right">Stock On Hand</th>
+        <th class="text-right">Threshold</th>
+        <th class="text-right">Gauge</th>
+        <th class="text-right">Allocated Quantity</th>
+        <th class="text-right">Total Sales</th>
+        <th class="text-right">Avg. Monthly Sales</th>
+        <th class="text-right">Max Monthly Sales</th>
+        <th class="text-right">Lead Time Demand</th>
+        <th class="text-right">Safety Stock</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+<div id="logout-btn-container" class="container-fluid d-flex justify-content-end">
+  <a class="btn btn-outline-dark btn-sm" href="{{ url_for('logout') }}">Logout</a>
+</div>
+{% endblock main %} {% block scripts %}
+<!-- d3.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+<!-- External JavaScript -->
+<script src="{{ url_for('static', filename='js/index.js') }}"></script> {% endblock scripts %}

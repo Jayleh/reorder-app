@@ -1,23 +1,26 @@
 <!doctype html>
+
 <html lang="en">
 
   <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Reorder Plan</title>
+    {% block title %} {% endblock %}
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
-      crossorigin="anonymous">
-    <!-- External styles -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/logs.css') }}">
+      crossorigin="anonymous">  
+    {% block styles %} {% endblock %}
   </head>
 
   <body>
 
+    <header>
+      {% block header %} {% endblock %}
+    </header>
+
     <main>
-      {% block content %} {% endblock %}
+      {% block main %} {% endblock %}
     </main>
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -27,6 +30,7 @@
       crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
       crossorigin="anonymous"></script>
+    {% block scripts %} {% endblock %}
   </body>
 
 </html>

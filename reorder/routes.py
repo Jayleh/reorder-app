@@ -9,13 +9,18 @@ from reorder.scrape_test import get_stock, get_sell_through, format_sell_through
 @app.route("/")
 @login_required
 def home():
+    return render_template("index.html")
+
+
+@app.route("/<brand>")
+@login_required
+def table(brand):
     # Find reorder dictionary in mongodb
-    reorder = mongo.db.reorder.find_one()
+    reorder = mongo.db.reorder.find_one({"brand": brand})
 
-    return render_template("index.html", reorder=reorder)
+    return render_template("table.html", reorder=reorder)
 
 
-# Disabling route
 @app.route("/register", methods=["GET", "POST"])
 @login_required
 def register():
@@ -52,11 +57,11 @@ def logout():
     return redirect(url_for("home"))
 
 
-@app.route("/stock-on-hand")
+@app.route("/stock-on-hand/<brand>")
 @login_required
-def stock_on_hand():
+def stock_on_hand(brand):
 
-    stock_data = get_stock()
+    stock_data = get_stock(brand)
 
     return jsonify(stock_data)
 
@@ -72,31 +77,36 @@ def sales_orders(num_months):
     return jsonify(sell_through_data)
 
 
-@app.route("/all-data")
+@app.route("/all-data/<brand>/<num_months>")
 @login_required
-def all_data():
+def all_data(brand, num_months):
     # Find reorder dictionary in mongodb
-    reorder = mongo.db.reorder.find_one()
+    reorder = mongo.db.reorder.find_one({"brand": brand, "months_past_sellthrough": num_months})
 
-    data = reorder["reorder_data"]
+    data = {
+        "brand": reorder["brand"],
+        "months_past_sellthrough": reorder["months_past_sellthrough"],
+        "last_update": reorder["last_update"],
+        "reorder_data": reorder["reorder_data"]
+    }
 
     return jsonify(data)
 
 
-@app.route("/update/<num_months>")
+@app.route("/update/<brand>/<num_months>")
 @login_required
-def update(num_months):
+def update(brand, num_months):
     # Create reorder collection
     reorder = mongo.db.reorder
 
     # Call scrape function to return all reorder data
-    data = scrape(num_months)
+    data = scrape(brand, num_months)
 
-    # Update reorder collection with reorder data
-    reorder.update(
-        {},
+    # Replace specific document in reorder collection with data, if not found insert new collection
+    reorder.replace_one(
+        {"brand": brand, "months_past_sellthrough": num_months},
         data,
         upsert=True
     )
 
-    return redirect("/", code=302)
+    return redirect(f"/{brand}", code=302)

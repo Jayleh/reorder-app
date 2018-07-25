@@ -4,6 +4,10 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
+#choose-btn {
+    margin-top: 15px;
+}
+
 #title h1 {
     font-size: 24px;
     padding: 5px 0;
