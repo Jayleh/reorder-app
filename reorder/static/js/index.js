@@ -58,11 +58,11 @@ sel.onchange = function () {
 
     // console.log(this.value);
 
-    numMonths = this.value.match(/\d+/)[0];
+    let numMonths = this.value.match(/\d+/)[0];
 
     // console.log(numMonths);
 
-    if (numMonths !== 0) {
+    if (numMonths !== '0') {
         changeMonths(numMonths);
     }
 }
