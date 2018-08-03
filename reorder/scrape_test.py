@@ -38,7 +38,7 @@ def configure_request(url):
 async def fetch(session, url):
     url, headers, params = configure_request(url)
     async with session.get(url, headers=headers, params=params) as resp:
-        return await resp.json()
+        return await resp.json(content_type=None)
 
 
 async def splice_stock(brand, stock_on_hand):
@@ -361,4 +361,4 @@ def scrape(brand, num_months):
 
 
 if __name__ == "__main__":
-    scrape("anteage", 3)
+    scrape("AnteAGE", 3)
