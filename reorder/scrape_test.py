@@ -38,7 +38,7 @@ def configure_request(url):
 async def fetch(session, url):
     url, headers, params = configure_request(url)
     async with session.get(url, headers=headers, params=params) as resp:
-        return await resp.json(content_type=None)
+        return await resp.json()
 
 
 async def splice_stock(brand, stock_on_hand):
