@@ -69,7 +69,7 @@ sel.onchange = function () {
 
 // let sel = d3.select('#group-select');
 
-// sel.on('change', () => {
+// sel.addEventListener('change', () => {
 
 //     d3.select('#update-btn')
 //         .attr('href', this.value);
