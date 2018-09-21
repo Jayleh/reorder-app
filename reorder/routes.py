@@ -9,7 +9,13 @@ from reorder.scrape_test import get_stock, get_sell_through, format_sell_through
 @app.route("/")
 @login_required
 def home():
-    return render_template("index.html")
+    # Default
+    brand = "AnteAGE"
+
+    # Find reorder dictionary in mongodb
+    reorder = mongo.db.reorder.find_one({"brand": brand})
+
+    return render_template("index.html", reorder=reorder)
 
 
 @app.route("/<brand>")
@@ -18,7 +24,13 @@ def table(brand):
     # Find reorder dictionary in mongodb
     reorder = mongo.db.reorder.find_one({"brand": brand})
 
-    return render_template("table.html", reorder=reorder)
+    return render_template("index.html", reorder=reorder)
+
+
+@app.route("/partners")
+@login_required
+def partners():
+    return render_template("partners.html")
 
 
 @app.route("/register", methods=["GET", "POST"])

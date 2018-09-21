@@ -41,7 +41,6 @@ td {
 
 /* Small devices (landscape phones, 576px and up) */
 @media (min-width: 576px) {
-
     td {
         max-width: 235px;
         overflow: hidden; 
@@ -49,12 +48,10 @@ td {
         text-overflow: ellipsis;
         width: inherit;
     }
-
 }
 
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 768px) {
-
     td {
         max-width: 335px;
         overflow: hidden; 
@@ -69,12 +66,10 @@ td {
         margin: 0;
         text-align: center;
     }
-
 }
 
 /* Large devices (desktops, 992px and up) */
 @media (min-width: 992px) {
-
     td {
         max-width: 362px;
         overflow: hidden; 
@@ -82,12 +77,10 @@ td {
         text-overflow: ellipsis;
         width: inherit;
     }
-
 }
 
 /* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
-    
     th {
         white-space: pre-wrap;
     }
@@ -99,5 +92,4 @@ td {
         width: inherit;
         font-size: 16px;
     }
-
 }

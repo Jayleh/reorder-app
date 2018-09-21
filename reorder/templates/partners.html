@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block title %}
+<title>Cellese Reorder Points</title>
+{% endblock title %}
+{% block styles %}
+<!-- External CSS -->
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/choose.css') }}">
+{% endblock styles %}
+{% block main %}
+<div id="brand-card" class="container">
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <a href="/AnteAGE" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" style="background-color: #173c45;">AnteAGE</a>
+          <a href="/CytoPro" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" style="background-color: #81b0b2;">CytoPro</a>
+          <a href="/ProCell" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" style="background-color: #2d8064;">ProCell</a>
+          <a href="/SkinGen" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" style="background-color: #295a56">SkinGen</a>
+          <a href="/Venus" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" style="background-color: #a7ce97;">Venus</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main %}
