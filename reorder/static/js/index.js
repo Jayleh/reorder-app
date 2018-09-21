@@ -1,6 +1,6 @@
 function changeMonths(numMonths) {
-    let $brand = d3.select('#brand').html();
-    $numMonths = d3.select('#num-months'),
+    let $brand = d3.select('#brand').html(),
+        $numMonths = d3.select('#num-months'),
         $tbody = d3.select('table tbody'),
         $lastUpdate = d3.select('div#update-time > p');
 
@@ -16,7 +16,7 @@ function changeMonths(numMonths) {
 
         $lastUpdate.append('em')
             .html(
-                `${data['last_update']}`
+                `Last update on ${data['last_update']} PST`
             );
 
         $tbody.selectAll('tr').remove();
@@ -75,6 +75,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Enable tooltips
     let $toolTip = document.querySelectorAll('.tooltipped');
     M.Tooltip.init($toolTip);
+
+    // Enable select
+    let $select = document.querySelectorAll('select');
+    M.FormSelect.init($select);
 });
 
 // let sel = d3.select('#group-select');

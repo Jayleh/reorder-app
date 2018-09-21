@@ -4,7 +4,7 @@
 {% endblock title %}
 {% block styles %}
 <!-- External CSS -->
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/choose.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/partners.css') }}">
 {% endblock styles %}
 {% block main %}
 <div id="brand-card" class="container">
@@ -12,14 +12,29 @@
     <div class="col s12">
       <div class="card">
         <div class="card-content">
-          <a href="/AnteAGE" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" style="background-color: #173c45;">AnteAGE</a>
-          <a href="/CytoPro" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" style="background-color: #81b0b2;">CytoPro</a>
-          <a href="/ProCell" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" style="background-color: #2d8064;">ProCell</a>
-          <a href="/SkinGen" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" style="background-color: #295a56">SkinGen</a>
-          <a href="/Venus" class="btn btn-primary btn-lg btn-block" role="button" aria-pressed="true" style="background-color: #a7ce97;">Venus</a>
+          <a href="/AnteAGE" class="btn waves-effect waves-light" style="background-color: #173c45;">AnteAGE</a>
+          <a href="/CytoPro" class="btn waves-effect waves-light" style="background-color: #81b0b2;">CytoPro</a>
+          <a href="/ProCell" class="btn waves-effect waves-light" style="background-color: #2d8064;">ProCell</a>
+          <a href="/SkinGen" class="btn waves-effect waves-light" style="background-color: #295a56">SkinGen</a>
+          <a href="/Venus" class="btn waves-effect waves-light" style="background-color: #a7ce97;">Venus</a>
         </div>
       </div>
     </div>
   </div>
 </div>
+<div class="fixed-action-btn">
+  <a class="btn-floating btn-large blue">
+    <i class="large material-icons">layers</i>
+  </a>
+  <ul>
+    <li>
+      <a href="{{ url_for('logout') }}" class="btn-floating tooltipped red" data-position="left" data-tooltip="Logout">
+        <i class="material-icons">gesture</i>
+      </a>
+    </li>
+  </ul>
+</div>
 {% endblock main %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/partners.js') }}"></script>
+{% endblock scripts %}

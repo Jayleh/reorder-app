@@ -347,7 +347,7 @@ def create_full_table(brand, num_months):
 def scrape(brand, num_months):
     data = {}
 
-    last_update = dt.datetime.today().strftime("%Y-%m-%d %H:%M:%S.%f")
+    last_update = dt.datetime.today().strftime("%m/%d/%y %I:%M %p")
     reorder_data = create_full_table(brand, num_months)
 
     data["brand"] = brand
