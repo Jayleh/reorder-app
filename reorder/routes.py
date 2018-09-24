@@ -47,6 +47,12 @@ def partners():
     return render_template("partners.html")
 
 
+@app.route("/kits")
+@login_required
+def kits():
+    return render_template("kits.html")
+
+
 @app.route("/register", methods=["GET", "POST"])
 @login_required
 def register():
@@ -149,7 +155,7 @@ def update(brand, num_months):
 
         flash("Reorder plan successfully updated.",
               "background-color: #64b5f6;")
-    
+
     except Exception as e:
         print(e)
         flash("Reorder plan update was unsuccessful.",
