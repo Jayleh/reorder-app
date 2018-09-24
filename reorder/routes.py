@@ -4,7 +4,7 @@ from reorder import app, db, mongo, bcrypt
 from reorder.forms import RegistrationForm, LoginForm
 from reorder.models import User
 from flask_login import login_user, current_user, logout_user, login_required
-from reorder.scrape_test import get_stock_response, splice_stock, get_sell_through, format_sell_through, scrape
+from reorder.scrape_test import get_soh_response, splice_stock, get_sell_through, format_sell_through, scrape
 
 
 def get_time_now():
@@ -24,7 +24,7 @@ def home():
     reorder = mongo.db.reorder.find_one({"brand": brand})
 
     # Grab soh from mongodb
-    stock_on_hand = mongo.db.unleashed.find_one({"name": "stock_on_hand"})
+    stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
 
     return render_template("index.html", reorder=reorder, soh_data=stock_on_hand)
 
@@ -35,7 +35,10 @@ def table(brand):
     # Find reorder dictionary in mongodb
     reorder = mongo.db.reorder.find_one({"brand": brand})
 
-    return render_template("index.html", reorder=reorder)
+    # Grab soh from mongodb
+    stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
+
+    return render_template("index.html", reorder=reorder, soh_data=stock_on_hand)
 
 
 @app.route("/partners")
@@ -80,13 +83,22 @@ def logout():
     return redirect(url_for("home"))
 
 
-@app.route("/stock-on-hand/<brand>")
+@app.route("/stock-on-hand")
 @login_required
-def stock_on_hand(brand):
+def stock_on_hand():
     # Grab soh from mongodb
-    stock_on_hand = mongo.db.unleashed.find_one({"name": "stock_on_hand"})
+    stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
 
-    stock_data = splice_stock(brand, stock_on_hand)
+    return jsonify(stock_on_hand["responses"])
+
+
+@app.route("/stock-data/<brand>")
+@login_required
+def stock_data(brand):
+    # Grab soh from mongodb
+    stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
+
+    stock_data = splice_stock(brand, stock_on_hand["responses"])
 
     return jsonify(stock_data)
 
@@ -121,18 +133,27 @@ def all_data(brand, num_months):
 @app.route("/update/<brand>/<num_months>")
 @login_required
 def update(brand, num_months):
-    # Create reorder collection
-    reorder = mongo.db.reorder
+    try:
+        # Create reorder collection
+        reorder = mongo.db.reorder
 
-    # Call scrape function to return all reorder data
-    data = scrape(brand, num_months)
+        # Call scrape function to return all reorder data
+        data = scrape(brand, num_months)
 
-    # Replace specific document in reorder collection with data, if not found insert new collection
-    reorder.replace_one(
-        {"brand": brand, "months_past_sellthrough": num_months},
-        data,
-        upsert=True
-    )
+        # Replace specific document in reorder collection with data, if not found insert new collection
+        reorder.replace_one(
+            {"brand": brand, "months_past_sellthrough": num_months},
+            data,
+            upsert=True
+        )
+
+        flash("Reorder plan successfully updated.",
+              "background-color: #64b5f6;")
+    
+    except Exception as e:
+        print(e)
+        flash("Reorder plan update was unsuccessful.",
+              "background-color: #e57373;")
 
     return redirect(f"/{brand}", code=302)
 
@@ -141,11 +162,11 @@ def update(brand, num_months):
 @login_required
 def update_soh():
     try:
-        # Create unleashed collection
-        unleashed = mongo.db.unleashed
+        # Create reorder collection
+        reorder = mongo.db.reorder
 
         # Call scrape function to return all reorder data
-        stock_on_hand = get_stock_response()
+        stock_on_hand = get_soh_response()
 
         # Label collection
         stock_on_hand["name"] = "stock_on_hand"
@@ -155,7 +176,7 @@ def update_soh():
         stock_on_hand["last_update"] = last_update
 
         # Replace specific document in collection with data, if not found insert new collection
-        unleashed.replace_one(
+        reorder.replace_one(
             {"name": "stock_on_hand"},
             stock_on_hand,
             upsert=True

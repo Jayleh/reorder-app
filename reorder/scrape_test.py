@@ -93,19 +93,22 @@ async def run_stock():
         tasks = [asyncio.ensure_future(fetch(session, url)) for url in urls]
         stock_on_hand = await asyncio.gather(*tasks)
 
+        # Stock on hand dictionary
+        soh_dict = {"responses": stock_on_hand}
+
         # stock_data = await splice_stock(brand, stock_on_hand)
 
-        return stock_on_hand
+        return soh_dict
 
 
-def get_stock_response():
+def get_soh_response():
     # loop = asyncio.get_event_loop()
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     stock_on_hand = loop.run_until_complete(run_stock())
     loop.close()
 
-    print("get_stock completed")
+    print("get_soh_response completed")
     return stock_on_hand
 
 
@@ -303,9 +306,9 @@ def get_percentage(stock_on_hand, threshold, lead_time_demand):
 
 def create_full_table(brand, num_months):
     # Grab soh from mongodb
-    stock_on_hand = mongo.db.unleashed.find_one({"name": "stock_on_hand"})
+    stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
 
-    stock_data = splice_stock(brand, stock_on_hand)
+    stock_data = splice_stock(brand, stock_on_hand["responses"])
 
     sell_through = get_sell_through(num_months)
 

@@ -51,10 +51,10 @@ function init() {
 
 init();
 
-let sel = document.getElementById('group-select');
+let sel = document.querySelector('#group-select');
 
 sel.onchange = function () {
-    document.getElementById("update-btn").href = this.value;
+    document.querySelector("#update-btn").href = this.value;
 
     // console.log(this.value);
 
@@ -96,47 +96,45 @@ document.addEventListener('DOMContentLoaded', function () {
     M.Tooltip.init($toolTip);
 
     // Enable select
-    let $select = document.querySelectorAll('select');
+    let $select = document.querySelector('select');
     M.FormSelect.init($select);
 
+    // Click event on flash message
+    let $flashBtn = document.querySelector('#flash-close');
+
+    if ($flashBtn) {
+        $flashBtn.addEventListener("click", function () {
+            let $flashToast = document.querySelector('#flash-toast');
+            $flashToast.parentNode.removeChild($flashToast);
+        });
+    }
+    
     // List all buttons
     let $updateBtn = document.querySelector('#update-btn'),
         $sohUpdateBtn = document.querySelector('#soh-update-btn'),
         buttonList = [$updateBtn, $sohUpdateBtn];
 
-    // // Disable update button if no option selected
-    // let $option = document.querySelector('option');
-
-    // $option.addEventListener('change', function () {
-    //     if ($option.value !== "javascript:void(0)") {
-    //         $updateBtn.classList.remove('disabled');
-    //     }
-    //     else {
-    //         $updateBtn.classList.add('disabled');
-    //     }
-    // });
-
-    // Click event on soh update button
-    $sohUpdateBtn.addEventListener("click", function () {
-        // Alert with a toast
-        M.toast({ html: 'This may be a minute' })
-
-        // Dimmer
-        dimPage();
-
-        // Disable all buttons
-        disableButtons(buttonList);
+    // Disable update button if no option selected
+    $select.addEventListener('change', function () {
+        if ($select.value !== "javascript:void(0)") {
+            $updateBtn.classList.remove('disabled');
+        }
+        else {
+            $updateBtn.classList.add('disabled');
+        }
     });
+
+    // Click event on each update button
+    buttonList.forEach((element, index) => {
+        element.addEventListener("click", function () {
+            // Alert with a toast
+            M.toast({ html: 'This may be a minute' })
+
+            // Dimmer
+            dimPage();
+
+            // Disable all buttons
+            disableButtons(buttonList);
+        });
+    })
 });
-
-// let sel = d3.select('#group-select');
-
-// sel.addEventListener('change', () => {
-
-//     d3.select('#update-btn')
-//         .attr('href', this.value);
-
-//     console.log(this.value);
-// });
-
-// TODO: learn promises, async, await in order to do color highlighting
