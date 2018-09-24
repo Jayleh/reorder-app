@@ -6,7 +6,7 @@ import datetime as dt
 import aiohttp
 import pandas as pd
 import datedelta
-from reorder import api_id, api_key
+from reorder import mongo, api_id, api_key
 
 
 def configure_request(url):
@@ -41,7 +41,7 @@ async def fetch(session, url):
         return await resp.json()
 
 
-async def splice_stock(brand, stock_on_hand):
+def splice_stock(brand, stock_on_hand):
 
     stock_data = []
 
@@ -84,7 +84,7 @@ async def get_stock_urls(session, url):
         return my_list
 
 
-async def run_stock(brand):
+async def run_stock():
     url = f"https://api.unleashedsoftware.com/StockOnHand/1?pageSize=200"
     async with aiohttp.ClientSession() as session:
         urls = await get_stock_urls(session, url)
@@ -93,20 +93,20 @@ async def run_stock(brand):
         tasks = [asyncio.ensure_future(fetch(session, url)) for url in urls]
         stock_on_hand = await asyncio.gather(*tasks)
 
-        stock_data = await splice_stock(brand, stock_on_hand)
+        # stock_data = await splice_stock(brand, stock_on_hand)
 
-        return stock_data
+        return stock_on_hand
 
 
-def get_stock(brand):
+def get_stock_response():
     # loop = asyncio.get_event_loop()
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    stock_data = loop.run_until_complete(run_stock(brand))
+    stock_on_hand = loop.run_until_complete(run_stock())
     loop.close()
 
     print("get_stock completed")
-    return stock_data
+    return stock_on_hand
 
 
 def get_date_range(num_months):
@@ -302,7 +302,10 @@ def get_percentage(stock_on_hand, threshold, lead_time_demand):
 
 
 def create_full_table(brand, num_months):
-    stock_data = get_stock(brand)
+    # Grab soh from mongodb
+    stock_on_hand = mongo.db.unleashed.find_one({"name": "stock_on_hand"})
+
+    stock_data = splice_stock(brand, stock_on_hand)
 
     sell_through = get_sell_through(num_months)
 

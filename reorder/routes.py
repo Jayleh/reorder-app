@@ -1,9 +1,17 @@
+import datetime as dt
 from flask import render_template, jsonify, redirect, url_for, flash, request
 from reorder import app, db, mongo, bcrypt
 from reorder.forms import RegistrationForm, LoginForm
 from reorder.models import User
 from flask_login import login_user, current_user, logout_user, login_required
-from reorder.scrape_test import get_stock, get_sell_through, format_sell_through, scrape
+from reorder.scrape_test import get_stock_response, splice_stock, get_sell_through, format_sell_through, scrape
+
+
+def get_time_now():
+    time_now = dt.datetime.today() - dt.timedelta(hours=7)
+    time_now = time_now.strftime("%m/%d/%y %I:%M %p")
+
+    return time_now
 
 
 @app.route("/")
@@ -15,7 +23,10 @@ def home():
     # Find reorder dictionary in mongodb
     reorder = mongo.db.reorder.find_one({"brand": brand})
 
-    return render_template("index.html", reorder=reorder)
+    # Grab soh from mongodb
+    stock_on_hand = mongo.db.unleashed.find_one({"name": "stock_on_hand"})
+
+    return render_template("index.html", reorder=reorder, soh_data=stock_on_hand)
 
 
 @app.route("/<brand>")
@@ -72,8 +83,10 @@ def logout():
 @app.route("/stock-on-hand/<brand>")
 @login_required
 def stock_on_hand(brand):
+    # Grab soh from mongodb
+    stock_on_hand = mongo.db.unleashed.find_one({"name": "stock_on_hand"})
 
-    stock_data = get_stock(brand)
+    stock_data = splice_stock(brand, stock_on_hand)
 
     return jsonify(stock_data)
 
@@ -122,3 +135,38 @@ def update(brand, num_months):
     )
 
     return redirect(f"/{brand}", code=302)
+
+
+@app.route("/update-soh")
+@login_required
+def update_soh():
+    try:
+        # Create unleashed collection
+        unleashed = mongo.db.unleashed
+
+        # Call scrape function to return all reorder data
+        stock_on_hand = get_stock_response()
+
+        # Label collection
+        stock_on_hand["name"] = "stock_on_hand"
+
+        # Record time of update
+        last_update = get_time_now()
+        stock_on_hand["last_update"] = last_update
+
+        # Replace specific document in collection with data, if not found insert new collection
+        unleashed.replace_one(
+            {"name": "stock_on_hand"},
+            stock_on_hand,
+            upsert=True
+        )
+
+        flash("Stock on Hand successfully updated.",
+              "background-color: #64b5f6;")
+
+    except Exception as e:
+        print(e)
+        flash("Stock on Hand update was unsuccessful.",
+              "background-color: #e57373;")
+
+    return redirect(url_for('home'), code=302)

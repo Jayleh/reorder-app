@@ -67,6 +67,25 @@ sel.onchange = function () {
     }
 }
 
+function dimPage() {
+    // Dim page contents and display preloader
+    let $main = document.querySelectorAll('.container'),
+        $preloader = document.querySelector('#preloader-container');
+
+    $main.forEach(function (element) {
+        element.setAttribute("style", "opacity: 0.2;")
+    });
+
+    $preloader.setAttribute("style", "display: unset;")
+}
+
+function disableButtons(buttonList) {
+    // Disable all buttons
+    buttonList.forEach(function (element) {
+        element.classList.add('disabled');
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Enable floating action button
     let $actionBtn = document.querySelectorAll('.fixed-action-btn');
@@ -79,6 +98,35 @@ document.addEventListener('DOMContentLoaded', function () {
     // Enable select
     let $select = document.querySelectorAll('select');
     M.FormSelect.init($select);
+
+    // List all buttons
+    let $updateBtn = document.querySelector('#update-btn'),
+        $sohUpdateBtn = document.querySelector('#soh-update-btn'),
+        buttonList = [$updateBtn, $sohUpdateBtn];
+
+    // // Disable update button if no option selected
+    // let $option = document.querySelector('option');
+
+    // $option.addEventListener('change', function () {
+    //     if ($option.value !== "javascript:void(0)") {
+    //         $updateBtn.classList.remove('disabled');
+    //     }
+    //     else {
+    //         $updateBtn.classList.add('disabled');
+    //     }
+    // });
+
+    // Click event on soh update button
+    $sohUpdateBtn.addEventListener("click", function () {
+        // Alert with a toast
+        M.toast({ html: 'This may be a minute' })
+
+        // Dimmer
+        dimPage();
+
+        // Disable all buttons
+        disableButtons(buttonList);
+    });
 });
 
 // let sel = d3.select('#group-select');
