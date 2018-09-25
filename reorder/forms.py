@@ -28,3 +28,9 @@ class LoginForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired()])
     remember = BooleanField("Remember Me")
     submit = SubmitField("Login")
+
+
+# class KitForm(FlaskForm):
+#     main_sku = StringField("Main SKU", validators=[DataRequired()])
+#     comp_quant = StringField("Components and Quantities", validators=[DataRequired()])
+#     add_row_btn = SubmitField("")

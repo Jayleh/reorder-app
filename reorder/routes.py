@@ -53,6 +53,12 @@ def kits():
     return render_template("kits.html")
 
 
+@app.route("/save-kits")
+@login_required
+def save_kits():
+    return None
+
+
 @app.route("/register", methods=["GET", "POST"])
 @login_required
 def register():
