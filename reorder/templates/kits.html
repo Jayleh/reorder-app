@@ -14,17 +14,42 @@
 </div>
 <div class="container">
   <div class="row">
-    <table>
+    <table class="responsive-table">
       <thead>
         <tr>
           <th>Main SKUs</th>
           <th>Components and Quantities</th>
+          <th></th>
         </tr>
       </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="input-field">
+              <input id="main-sku" placeholder="Main SKU" type="text" class="validate">
+              <!-- <label for="main_sku">Main SKU</label> -->
+            </div>
+          </td>
+          <td>
+            <div class="input-field">
+              <input id="comp-quant" placeholder="Components and Quantities" type="text" class="validate">
+              <!-- <textarea id="comp_quant" placeholder="Components and Quantities" class="materialize-textarea"></textarea> -->
+              <!-- <label for="comp_quant">Components and Quantities</label> -->
+            </div>
+          </td>
+          <td>
+            <a id="add-row-btn" class="btn-small waves-effect waves-light">
+              <i class="material-icons center">
+                add_circle_outline
+              </i>
+            </a>
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </div>
-<div class="container">
+<!-- <div class="container">
   <div class="row">
     <form class="col s12">
       <div class="row">
@@ -39,7 +64,7 @@
       </div>
     </form>
   </div>
-</div>
+</div> -->
 {% endblock main %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/kits.js') }}"></script>
