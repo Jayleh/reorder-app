@@ -53,10 +53,18 @@ def kits():
     return render_template("kits.html")
 
 
-@app.route("/save-kits")
+@app.route("/save-kits", methods=["GET", "POST"])
 @login_required
 def save_kits():
-    return None
+    if request.method == "POST":
+
+        main_skus = request.form["final_product"]
+
+        print(main_skus)
+    else:
+        print('hi')
+
+    return redirect(url_for('kits'), code=302)
 
 
 @app.route("/register", methods=["GET", "POST"])

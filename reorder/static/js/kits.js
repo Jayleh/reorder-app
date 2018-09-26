@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 cell3 = tableRow.insertCell(2);
 
             // Insert data in cells
-            cell1.innerHTML = `${$mainSku.value}`;
-            cell2.innerHTML = `${$compQuant.value}`;
+            cell1.innerHTML = `<input name="final_product" value="${$mainSku.value}">`;
+            cell2.innerHTML = `<input name="component_product" value="${$compQuant.value}">`;
             cell3.innerHTML = '<a class="btn-small waves-effect waves-light red remove-row-btn" onclick="removeRow(this)"><i class="material-icons center">remove_circle_outline</i></a>';
 
             // Reset input fields
