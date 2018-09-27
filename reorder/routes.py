@@ -5,6 +5,7 @@ from reorder.forms import RegistrationForm, LoginForm
 from reorder.models import User
 from flask_login import login_user, current_user, logout_user, login_required
 from reorder.scrape_test import get_soh_response, splice_stock, get_sell_through, format_sell_through, scrape
+from reorder.kits import convert_to_kits, format_kits_dict
 
 
 def get_time_now():
@@ -50,7 +51,14 @@ def partners():
 @app.route("/kits")
 @login_required
 def kits():
-    return render_template("kits.html")
+    # Find reorder dictionary in mongodb
+    reorder = mongo.db.reorder.find_one({"name": "kit_boms"})
+
+    kits = reorder["items"]
+
+    kit_boms = format_kits_dict(kits)
+
+    return render_template("kits.html", reorder=reorder, kit_boms=kit_boms)
 
 
 @app.route("/save-kits", methods=["GET", "POST"])
@@ -61,8 +69,24 @@ def save_kits():
             final_products = request.form.getlist("final_product")
             component_products = request.form.getlist("component_product")
 
-            print(final_products)
-            print(component_products)
+            kit_boms = convert_to_kits(final_products, component_products)
+
+            # Create reorder collection
+            reorder = mongo.db.reorder
+
+            # Label collection
+            kit_boms["name"] = "kit_boms"
+
+            # Record time of update
+            last_update = get_time_now()
+            kit_boms["last_update"] = last_update
+
+            # Replace specific document in collection with data, if not found insert new collection
+            reorder.replace_one(
+                {"name": "kit_boms"},
+                kit_boms,
+                upsert=True
+            )
 
             flash("Kits successfully updated.",
                   "background-color: #64b5f6;")
@@ -134,10 +158,14 @@ def stock_data(brand):
 @app.route("/sell-through/<num_months>")
 @login_required
 def sales_orders(num_months):
+    # Find reorder dictionary in mongodb
+    reorder = mongo.db.reorder.find_one({"name": "kit_boms"})
+
+    kits = reorder["items"]
 
     sell_through = get_sell_through(num_months)
 
-    sell_through_data = format_sell_through(sell_through)
+    sell_through_data = format_sell_through(sell_through, kits)
 
     return jsonify(sell_through_data)
 

@@ -190,21 +190,7 @@ def get_sell_through(num_months):
     return sell_through
 
 
-# Kit Bills of Materials
-kit_boms = {
-    "AAPRSSKT": {"AAPRSE30ML": 1, "AAPRAS30ML": 1},
-    "AAPRSAKT": {"AAPRSE30ML": 1, "AAPRAC30ML": 1},
-    "AAPRMFKT": {"AACL480ML": 1, "AAPRMABX": 1, "AAPRMBBX": 1, "AAPRMCBX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 15},
-    "AAPRMCKT": {"AACL480ML": 1, "AAPRMCBX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 5},
-    "AAPRMBKT": {"AACL480ML": 1, "AAPRMBBX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 5},
-    "AAPRMAKT": {"AACL480ML": 1, "AAPRMABX": 1, "AARZ240ML": 1, "DVAAMNST0.25MM": 5},
-    "AAMDSAKT": {"AAMDSE30ML": 1, "AAMDAC30ML": 1},
-    "AAMDSSKT": {"AAMDSE30ML": 1, "AAMDAS30ML": 1},
-    "AAHMHSKT": {"AAHMHSBX": 1, "DVAAMNST0.25MM": 1}
-}
-
-
-def format_sell_through(sell_through):
+def format_sell_through(sell_through, kits):
 
     df = pd.DataFrame(sell_through)
 
@@ -219,7 +205,7 @@ def format_sell_through(sell_through):
         product_order_quantity = row["order_quantity"]
         completed_date = row["completed_date"]
 
-        for finished_product, children in kit_boms.items():
+        for finished_product, children in kits.items():
 
             if product == finished_product:
 
@@ -304,7 +290,7 @@ def get_percentage(stock_on_hand, threshold, lead_time_demand):
         return reorder_percentage
 
 
-def create_full_table(brand, num_months):
+def create_full_table(brand, num_months, kits):
     # Grab soh from mongodb
     stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
 
@@ -312,7 +298,7 @@ def create_full_table(brand, num_months):
 
     sell_through = get_sell_through(num_months)
 
-    sell_through_data = format_sell_through(sell_through)
+    sell_through_data = format_sell_through(sell_through, kits)
 
     stock_df = pd.DataFrame(stock_data)
 
@@ -337,7 +323,7 @@ def create_full_table(brand, num_months):
     merged_df = merged_df[["product_code", "description", "stock_on_hand", "threshold", "display_percentage", "allocated_quantity",
                            "order_quantity", "num_months", "avg_monthly_usage", "max_monthly_usage", "lead_time_demand", "safety_stock"]]
 
-    kit_list = [key for key in kit_boms.keys()]
+    kit_list = [key for key in kits.keys()]
 
     merged_df = merged_df[~merged_df["product_code"].isin(kit_list)]
 
@@ -351,10 +337,15 @@ def create_full_table(brand, num_months):
 
 
 def scrape(brand, num_months):
+    # Find reorder dictionary in mongodb
+    reorder = mongo.db.reorder.find_one({"name": "kit_boms"})
+
+    kits = reorder["items"]
+
     data = {}
 
     last_update = dt.datetime.today().strftime("%m/%d/%y %I:%M %p")
-    reorder_data = create_full_table(brand, num_months)
+    reorder_data = create_full_table(brand, num_months, kits)
 
     data["brand"] = brand
     data["months_past_sellthrough"] = num_months

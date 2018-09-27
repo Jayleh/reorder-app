@@ -1,7 +1,30 @@
 function removeRow(element) {
-    let tableRow = element.parentNode.parentNode;
+    let tableRow = element.parentNode.parentNode,
+        $modal2 = document.querySelector('#modal2');
 
-    tableRow.parentNode.removeChild(tableRow);
+    let instance = M.Modal.getInstance($modal2);
+    instance.open();
+
+    let $deleteRowBtn = document.querySelector('#delete-row-btn');
+
+    $deleteRowBtn.addEventListener('click', function() {
+        tableRow.parentNode.removeChild(tableRow);
+        instance.close();
+    });
+}
+
+function disableButtons(buttonList) {
+    // Disable all buttons
+    buttonList.forEach(function (element) {
+        element.classList.add('disabled');
+    });
+}
+
+function enableButtons(buttonList) {
+    // Disable all buttons
+    buttonList.forEach(function (element) {
+        element.classList.remove('disabled');
+    });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -12,6 +35,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Enable tooltips
     let $toolTip = document.querySelectorAll('.tooltipped');
     M.Tooltip.init($toolTip);
+
+    // Enable modal
+    let $modal = document.querySelectorAll('.modal');
+    M.Modal.init($modal);
 
     // Click event on flash message
     let $flashBtn = document.querySelector('#flash-close');
@@ -27,8 +54,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let $mainSku = document.querySelector('#main-sku'),
         $compQuant = document.querySelector('#comp-quant');
 
-    // Add add icon to add row button
-    let $addRowBtn = document.querySelector('#add-row-btn');
+    // Buttons
+    let $addRowBtn = document.querySelector('#add-row-btn'),
+        $saveBtn = document.querySelector('#save-kits-btn');
 
     // Table tbody
     let $tbody = document.querySelector('tbody');
@@ -49,9 +77,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 cell3 = tableRow.insertCell(2);
 
             // Insert data in cells
-            cell1.innerHTML = `<input name="final_product" value="${$mainSku.value}">`;
-            cell2.innerHTML = `<input name="component_product" value="${$compQuant.value}">`;
-            cell3.innerHTML = '<a class="btn-small waves-effect waves-light red remove-row-btn" onclick="removeRow(this)"><i class="material-icons center">remove_circle_outline</i></a>';
+            cell1.innerHTML = `<div class="input-field"><input name="final_product" value="${$mainSku.value}"></div>`;
+            cell2.innerHTML = `<div class="input-field"><input name="component_product" value="${$compQuant.value}"></div>`;
+            cell3.innerHTML = '<a class="btn-small waves-effect waves-light red remove-row-btn"><i class="material-icons center">remove_circle_outline</i></a>';
 
             // Reset input fields
             $mainSku.value = null;
