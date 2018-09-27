@@ -13,6 +13,16 @@ document.addEventListener('DOMContentLoaded', function () {
     let $toolTip = document.querySelectorAll('.tooltipped');
     M.Tooltip.init($toolTip);
 
+    // Click event on flash message
+    let $flashBtn = document.querySelector('#flash-close');
+
+    if ($flashBtn) {
+        $flashBtn.addEventListener("click", function () {
+            let $flashToast = document.querySelector('#flash-toast');
+            $flashToast.parentNode.removeChild($flashToast);
+        });
+    }
+
     // Input fields
     let $mainSku = document.querySelector('#main-sku'),
         $compQuant = document.querySelector('#comp-quant');

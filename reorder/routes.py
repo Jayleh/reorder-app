@@ -57,12 +57,20 @@ def kits():
 @login_required
 def save_kits():
     if request.method == "POST":
+        try:
+            final_products = request.form.getlist("final_product")
+            component_products = request.form.getlist("component_product")
 
-        main_skus = request.form["final_product"]
+            print(final_products)
+            print(component_products)
 
-        print(main_skus)
-    else:
-        print('hi')
+            flash("Kits successfully updated.",
+                  "background-color: #64b5f6;")
+
+        except Exception as e:
+            print(e)
+            flash("Kit update was unsuccessful. Please check your formatting.",
+                  "background-color: #e57373;")
 
     return redirect(url_for('kits'), code=302)
 

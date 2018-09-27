@@ -5,6 +5,11 @@ h1 {
     text-align: center;
 }
 
+#flash-toast {
+    position: unset;
+    margin: 0;
+}
+
 .input-field,
 .input-field input {
     margin: 0;

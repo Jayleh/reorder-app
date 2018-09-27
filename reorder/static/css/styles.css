@@ -1,9 +1,6 @@
-.toast {
+#flash-toast {
     position: unset;
     margin-top: 0px;
-}
-
-#flash-toast {
     margin-bottom: 10px;
 }
 
