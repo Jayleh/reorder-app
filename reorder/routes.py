@@ -54,9 +54,15 @@ def kits():
     # Find reorder dictionary in mongodb
     reorder = mongo.db.reorder.find_one({"name": "kit_boms"})
 
-    kits = reorder["items"]
+    try:
+        kits = reorder["items"]
 
-    kit_boms = format_kits_dict(kits)
+        kit_boms = format_kits_dict(kits)
+
+    except TypeError:
+        print(TypeError)
+    except Exception as e:
+        print(e)
 
     return render_template("kits.html", reorder=reorder, kit_boms=kit_boms)
 
