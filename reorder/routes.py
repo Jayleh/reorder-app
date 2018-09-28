@@ -56,11 +56,9 @@ def kits():
 
     kits = reorder["items"]
 
-    if kits:
-        kit_boms = format_kits_dict(kits)
-        return render_template("kits.html", reorder=reorder, kit_boms=kit_boms)
-    else:
-        return render_template("kits.html", reorder=reorder)
+    kit_boms = format_kits_dict(kits)
+
+    return render_template("kits.html", reorder=reorder, kit_boms=kit_boms)
 
 
 @app.route("/save-kits", methods=["GET", "POST"])
