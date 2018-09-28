@@ -59,6 +59,7 @@ def kits():
 
         kit_boms = format_kits_dict(kits)
 
+        return render_template("kits.html", reorder=reorder, kit_boms=kit_boms)
     except TypeError:
         print(TypeError)
     except Exception as e:
