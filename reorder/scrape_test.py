@@ -1,3 +1,4 @@
+from operator import itemgetter
 import asyncio
 import binascii
 import hmac
@@ -41,60 +42,90 @@ async def fetch(session, url):
         return await resp.json()
 
 
-def splice_stock(brand, stock_on_hand):
+def get_products_urls(product_skus):
+    products_urls = [
+        f"https://api.unleashedsoftware.com/Products?productCode={sku}" for sku in product_skus]
 
-    stock_data = []
+    return products_urls
 
-    if brand == "AnteAGE":
-        product_groups = ['|AnteAGE Home', '|AnteAGE Pro', '|AnteAGE MD']
-    elif brand == "CytoPro":
-        product_groups = ['|CytoPro - Pilica']
-    elif brand == "ProCell":
-        product_groups = ['|ProCell']
-    elif brand == "SkinGen":
-        product_groups = ['|SkinGen']
-    elif brand == "Venus":
-        product_groups = ['|Venus Skin']
 
-    for response in stock_on_hand:
+def splice_products(products_skus, products_responses):
+    products = []
+
+    for response in products_responses["responses"]:
 
         for item in response["Items"]:
 
-            if item["ProductGroupName"] in product_groups:
+            if item["ProductCode"] in products_skus:
 
-                stock_data.append({
+                products.append({
                     "product_code": item["ProductCode"],
                     "description": item["ProductDescription"],
-                    "stock_on_hand": item["QtyOnHand"],
-                    "allocated_quantity": item["AllocatedQty"]
+                    "guid": item["Guid"]
                 })
 
-    return stock_data
+    products = sorted(products, key=itemgetter('product_code'))
+
+    product_dict = {"items": products}
+
+    return product_dict
 
 
-async def get_stock_urls(session, url):
+async def run_products(product_skus):
+    urls = get_products_urls(product_skus)
+
     async with aiohttp.ClientSession() as session:
-        data = await fetch(session, url)
+        tasks = [asyncio.ensure_future(fetch(session, url)) for url in urls]
+        products = await asyncio.gather(*tasks)
 
-        num_pages = data["Pagination"]["NumberOfPages"]
+        # Stock on hand dictionary
+        products_dict = {"responses": products}
 
-        partial_url = 'https://api.unleashedsoftware.com/StockOnHand/'
-        my_list = [f"{partial_url}{i}?pageSize=200" for i in range(1, num_pages + 1)]
+        return products_dict
 
-        return my_list
+
+def get_products_response(products_skus):
+    # loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    products_dict = loop.run_until_complete(run_products(products_skus))
+    loop.close()
+
+    print("get_products_response completed")
+    return products_dict
+
+
+def get_stock_query():
+    # Grab products from mongodb
+    products = mongo.db.reorder.find_one({"name": "products"})
+
+    guid_list = []
+
+    for product in products["items"]:
+        guid = product["guid"]
+
+        guid_list.append(f"{guid}")
+
+    query = ",".join(guid_list)
+
+    print(query)
+
+    return query
 
 
 async def run_stock():
-    url = f"https://api.unleashedsoftware.com/StockOnHand/1?pageSize=200"
-    async with aiohttp.ClientSession() as session:
-        urls = await get_stock_urls(session, url)
-        # print(urls)
+    query = get_stock_query()
 
-        tasks = [asyncio.ensure_future(fetch(session, url)) for url in urls]
-        stock_on_hand = await asyncio.gather(*tasks)
+    url = f"https://api.unleashedsoftware.com/StockOnHand?productId={query}&pageSize=1000"
+    async with aiohttp.ClientSession() as session:
+        task = asyncio.ensure_future(fetch(session, url))
+
+        stock_on_hand = await task
+
+        stock_data = stock_on_hand["Items"]
 
         # Stock on hand dictionary
-        soh_dict = {"responses": stock_on_hand}
+        soh_dict = {"items": stock_data}
 
         # stock_data = await splice_stock(brand, stock_on_hand)
 
@@ -191,7 +222,6 @@ def get_sell_through(num_months):
 
 
 def format_sell_through(sell_through, kits):
-
     df = pd.DataFrame(sell_through)
 
     # Drop nan values
@@ -290,11 +320,26 @@ def get_percentage(stock_on_hand, threshold, lead_time_demand):
         return reorder_percentage
 
 
-def create_full_table(brand, num_months, kits):
+def initalize_stock_data(brand):
     # Grab soh from mongodb
     stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
 
-    stock_data = splice_stock(brand, stock_on_hand["responses"])
+    stock_data = []
+
+    for product in stock_on_hand["items"]:
+
+        stock_data.append({
+            "product_code": product["ProductCode"],
+            "description": product["ProductDescription"],
+            "stock_on_hand": product["QtyOnHand"],
+            "allocated_quantity": product["AllocatedQty"]
+        })
+
+    return stock_data
+
+
+def create_full_table(brand, num_months, kits):
+    stock_data = initalize_stock_data(brand)
 
     sell_through = get_sell_through(num_months)
 

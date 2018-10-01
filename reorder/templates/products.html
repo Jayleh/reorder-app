@@ -9,7 +9,7 @@
 {% block main %}
 <div class="container">
   <div class="row">
-    <h1>Kit Breakdown</h1>
+    <h1>Configure Products</h1>
   </div>
 </div>
 <div class="container">
@@ -31,26 +31,27 @@
 <div class="container">
   <div class="row">
     <div class="col s12">
-      <form method="POST" action="{{ url_for('save_kits') }}">
+      <form method="POST" action="{{ url_for('save_products') }}">
         <table class="responsive-table">
           <thead>
             <tr>
-              <th>Main SKUs</th>
-              <th>Components and Quantities</th>
+              <th>Product</th>
+              <th>Description</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {% for kit in kit_boms %}
+            {% for product in products %}
             <tr>
               <td>
                 <div class="input-field">
-                  <input name="final_product" value="{{ kit.final_product }}">
+                  <input name="product" value="{{ product.product_code }}">
                 </div>
               </td>
               <td>
+                {{ product.description }}
                 <div class="input-field">
-                  <input name="component_product" value="{{ kit.component_product }}">
+                  <input name="guid" type="hidden" value="{{ product.guid }}">
                 </div>
               </td>
               <td>
@@ -63,16 +64,11 @@
             <tr>
               <td>
                 <div class="input-field">
-                  <input id="main-sku" placeholder="Main SKU" type="text" class="validate">
-                  <!-- <label for="main_sku">Main SKU</label> -->
+                  <input id="main-sku" placeholder="Products" type="text" class="validate">
+                  <!-- <label for="main_sku">Products</label> -->
                 </div>
               </td>
-              <td>
-                <div class="input-field">
-                  <input id="comp-quant" placeholder="Components and Quantities" type="text" class="validate">
-                  <!-- <label for="comp_quant">Components and Quantities</label> -->
-                </div>
-              </td>
+              <td></td>
               <td>
                 <a id="add-row-btn" class="btn-small waves-effect waves-light">
                   <i class="material-icons center">
@@ -85,11 +81,11 @@
         </table>
         <div id="save-panel" class="card-panel">
           <div class="flex-center">
-            <p id="save-kits-title">Update Kits</p>
+            <p id="save-kits-title">Update Products</p>
             <!-- Save Button Modal Trigger -->
             <button id="save-kits-btn" data-target="modal1" class="btn modal-trigger">Save</button>
           </div>
-          <p class="last-update-time"><em>Last update on {{ reorder.last_update }} PST</em></p>
+          <p class="last-update-time"><em>Last update on PST</em></p>
         </div>
         <!-- Save Button Modal Structure -->
         <div id="modal1" class="modal">
@@ -117,5 +113,5 @@
 </div>
 {% endblock main %}
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/kits.js') }}"></script>
+<script src="{{ url_for('static', filename='js/products.js') }}"></script>
 {% endblock scripts %}

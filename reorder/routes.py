@@ -4,7 +4,9 @@ from reorder import app, db, mongo, bcrypt
 from reorder.forms import RegistrationForm, LoginForm
 from reorder.models import User
 from flask_login import login_user, current_user, logout_user, login_required
-from reorder.scrape_test import get_soh_response, splice_stock, get_sell_through, format_sell_through, scrape
+from reorder.scrape_test import (get_products_response, splice_products, get_soh_response,
+                                 initalize_stock_data, get_sell_through, format_sell_through,
+                                 scrape)
 from reorder.kits import convert_to_kits, format_kits_dict
 
 
@@ -57,6 +59,8 @@ def kits():
     kits = reorder["items"]
 
     kit_boms = format_kits_dict(kits)
+
+    print(kit_boms)
 
     return render_template("kits.html", reorder=reorder, kit_boms=kit_boms)
 
@@ -147,10 +151,7 @@ def stock_on_hand():
 @app.route("/stock-data/<brand>")
 @login_required
 def stock_data(brand):
-    # Grab soh from mongodb
-    stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
-
-    stock_data = splice_stock(brand, stock_on_hand["responses"])
+    stock_data = initalize_stock_data(brand)
 
     return jsonify(stock_data)
 
@@ -196,7 +197,7 @@ def update(brand, num_months):
         # Call scrape function to return all reorder data
         data = scrape(brand, num_months)
 
-        # Replace specific document in reorder collection with data, if not found insert new collection
+        # Replace specific doc in reorder collection with data, if not found insert new collection
         reorder.replace_one(
             {"brand": brand, "months_past_sellthrough": num_months},
             data,
@@ -221,7 +222,7 @@ def update_soh():
         # Create reorder collection
         reorder = mongo.db.reorder
 
-        # Call scrape function to return all reorder data
+        # Call get stock on hand response function to return soh for products
         stock_on_hand = get_soh_response()
 
         # Label collection
@@ -247,3 +248,55 @@ def update_soh():
               "background-color: #e57373;")
 
     return redirect(url_for('home'), code=302)
+
+
+@app.route("/products")
+@login_required
+def products():
+    # Find reorder dictionary in mongodb
+    reorder = mongo.db.reorder.find_one({"name": "products"})
+
+    products = reorder["items"]
+
+    return render_template("products.html", reorder=reorder, products=products)
+
+
+@app.route("/save-products", methods=["GET", "POST"])
+@login_required
+def save_products():
+    if request.method == "POST":
+        try:
+            products_skus = request.form.getlist("product")
+
+            # Create reorder collection
+            reorder = mongo.db.reorder
+
+            # Call get products function to return chosen products
+            products_responses = get_products_response(products_skus)
+
+            # Grab only the chosen products
+            products = splice_products(products_skus, products_responses)
+
+            # Label collection
+            products["name"] = "products"
+
+            # Record time of update
+            last_update = get_time_now()
+            products["last_update"] = last_update
+
+            # Replace specific document in collection with data, if not found insert new collection
+            reorder.replace_one(
+                {"name": "products"},
+                products,
+                upsert=True
+            )
+
+            flash("Products successfully updated.",
+                  "background-color: #64b5f6;")
+
+        except Exception as e:
+            print(e)
+            flash("Products update was unsuccessful.",
+                  "background-color: #e57373;")
+
+    return redirect(url_for('products'), code=302)

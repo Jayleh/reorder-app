@@ -1,3 +1,6 @@
+from operator import itemgetter
+
+
 def convert_to_kits(final_products, component_products):
     # Instantiate list of dictionaries holding components for each final product
     component_quantity = []
@@ -61,10 +64,13 @@ def format_kits_dict(kits):
         # append to final component products list
         final_component_products.append(components)
 
-    # Instatiate dictionary for front end
-    formatted_kits = {}
+    # Instatiate list for front end
+    formatted_kits = []
 
     for key, value in zip(final_products, final_component_products):
-        formatted_kits[key] = value
+        formatted_kits.append({"final_product": key,
+                               "component_product": value})
+
+    formatted_kits = sorted(formatted_kits, key=itemgetter('final_product'))
 
     return formatted_kits
