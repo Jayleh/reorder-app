@@ -9,7 +9,7 @@
 {% block main %}
 <div class="container">
   <div class="row">
-    <h1>Configure Products</h1>
+    <h1>Configure {{ reorder.brand }} Products</h1>
   </div>
 </div>
 <div class="container">
@@ -31,7 +31,7 @@
 <div class="container">
   <div class="row">
     <div class="col s12">
-      <form method="POST" action="{{ url_for('save_products') }}">
+      <form method="POST" action="/save-products/{{ reorder.brand }}">
         <table class="responsive-table">
           <thead>
             <tr>
@@ -50,9 +50,6 @@
               </td>
               <td>
                 {{ product.description }}
-                <div class="input-field">
-                  <input name="guid" type="hidden" value="{{ product.guid }}">
-                </div>
               </td>
               <td>
                 <a class="btn-small waves-effect waves-light red remove-row-btn" onclick="removeRow(this)">

@@ -53,11 +53,22 @@
     <div class="col s12 m6 l12">
       <div class="card-panel">
         <div class="select-container">
-          <p id="update-soh-title">Update Stock On Hand</p>
-          <a id="soh-update-btn" href="{{ url_for('update_soh') }}" class="btn waves-effect waves-light update-btn">Update</a>
+          <p class="card-panel-title">Update Stock On Hand</p>
+          <a id="soh-update-btn" href="/update-soh/{{ reorder.brand }}" class="btn waves-effect waves-light update-btn">Update</a>
         </div>
         <div>
           <p class="last-update-time"><em>Last update on {{ soh_data.last_update }} PST</em></p>
+        </div>
+      </div>
+    </div>
+    <div class="col s12 m6 l12">
+      <div class="card-panel">
+        <div class="select-container">
+          <p class="card-panel-title">Update Sell Through</p>
+          <a id="sell-update-btn" href="javascript:void(0)" class="btn waves-effect waves-light update-btn">Update</a>
+        </div>
+        <div>
+          <p class="last-update-time"><em>Last update on PST</em></p>
         </div>
       </div>
     </div>

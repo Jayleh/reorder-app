@@ -322,7 +322,7 @@ def get_percentage(stock_on_hand, threshold, lead_time_demand):
 
 def initalize_stock_data(brand):
     # Grab soh from mongodb
-    stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
+    stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand", "brand": brand})
 
     stock_data = []
 

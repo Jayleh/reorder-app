@@ -33,7 +33,7 @@
     margin: 0;
 }
 
-#update-soh-title {
+.card-panel-title {
     font-size: 16px;
     margin: 10px 0 8px 0;
 }

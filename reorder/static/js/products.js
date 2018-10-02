@@ -78,12 +78,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Insert data in cells
             cell1.innerHTML = `<div class="input-field"><input name="product" value="${$mainSku.value}"></div>`;
-            cell2.innerHTML = `<div class="input-field"><input name="guid" type="hidden" value=""></div>`;
-            cell3.innerHTML = '<a class="btn-small waves-effect waves-light red remove-row-btn"><i class="material-icons center">remove_circle_outline</i></a>';
+            // cell2.innerHTML = `<div class="input-field"><input name="guid" type="hidden" value=""></div>`;
+            cell3.innerHTML = '<a class="btn-small waves-effect waves-light red remove-row-btn" onclick="removeRow(this)"><i class="material-icons center">remove_circle_outline</i></a>';
 
             // Reset input fields
             $mainSku.value = null;
-            $compQuant.value = null;
+            // $compQuant.value = null;
         }
         else {
             // Alert with a toast

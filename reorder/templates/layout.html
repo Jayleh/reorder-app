@@ -33,12 +33,13 @@
             </a>
           </li>
           <li>
-            <a href="{{ url_for('products') }}" class="btn-floating tooltipped" data-position="left" data-tooltip="Configure">
+            <a href="/products/{{ reorder.brand }}" class="btn-floating tooltipped" data-position="left" data-tooltip="{{ reorder.brand }} Products">
               <i class="material-icons">build</i>
             </a>
           </li>
           <li>
-            <a href="{{ url_for('kits') }}" class="btn-floating tooltipped orange" data-position="left" data-tooltip="Kits">
+            <a href="/kits/{{ reorder.brand }}" class="btn-floating tooltipped orange" data-position="left"
+              data-tooltip="{{ reorder.brand }} Kits">
               <i class="material-icons">line_style</i>
             </a>
           </li>
