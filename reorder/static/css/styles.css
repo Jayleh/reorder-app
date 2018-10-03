@@ -146,7 +146,7 @@ td {
         position: fixed;
         /* right: 1%; */
         left: 1%;
-        bottom: 1%;
+        bottom: -3%;
         margin: 0;
         width: 12%!important;
     }

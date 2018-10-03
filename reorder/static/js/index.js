@@ -51,22 +51,6 @@ function init() {
 
 init();
 
-let sel = document.querySelector('#group-select');
-
-sel.onchange = function () {
-    document.querySelector("#update-btn").href = this.value;
-
-    // console.log(this.value);
-
-    let numMonths = this.value.match(/\d+/)[0];
-
-    // console.log(numMonths);
-
-    if (numMonths !== '0') {
-        changeMonths(numMonths);
-    }
-}
-
 function dimPage() {
     // Dim page contents and display preloader
     let $main = document.querySelectorAll('.container'),
@@ -86,6 +70,15 @@ function disableButtons(buttonList) {
     });
 }
 
+function checkSelectField(sel, selBtn) {
+    if (sel.value !== "javascript:void(0)") {
+        selBtn.classList.remove('disabled');
+    }
+    else {
+        selBtn.classList.add('disabled');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Enable floating action button
     let $actionBtn = document.querySelectorAll('.fixed-action-btn');
@@ -96,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
     M.Tooltip.init($toolTip);
 
     // Enable select
-    let $select = document.querySelector('select');
+    let $select = document.querySelectorAll('select');
     M.FormSelect.init($select);
 
     // Click event on flash message
@@ -108,33 +101,55 @@ document.addEventListener('DOMContentLoaded', function () {
             $flashToast.parentNode.removeChild($flashToast);
         });
     }
-    
+
     // List all buttons
     let $updateBtn = document.querySelector('#update-btn'),
         $sohUpdateBtn = document.querySelector('#soh-update-btn'),
-        buttonList = [$updateBtn, $sohUpdateBtn];
+        $salesUpdateBtn = document.querySelector('#sales-update-btn'),
+        buttonList = [$updateBtn, $sohUpdateBtn, $salesUpdateBtn];
 
-    // Disable update button if no option selected
-    $select.addEventListener('change', function () {
-        if ($select.value !== "javascript:void(0)") {
-            $updateBtn.classList.remove('disabled');
+
+    // Select fields
+    let $sellSelect = document.querySelector('#group-select'),
+        $salesSelect = document.querySelector('#sales-group-select');
+
+    $sellSelect.addEventListener('change', function () {
+        // Change href value for sell through update
+        document.querySelector('#update-btn').href = this.value;
+
+        // console.log(this.value);
+
+        let numMonths = this.value.match(/\d+/)[0];
+
+        if (numMonths !== '0') {
+            changeMonths(numMonths);
         }
-        else {
-            $updateBtn.classList.add('disabled');
-        }
+
+        // Disable update button if no option selected
+        checkSelectField($sellSelect, $updateBtn)
+    });
+
+    $salesSelect.addEventListener('change', function () {
+        // Change href value for sales orders update
+        document.querySelector('#sales-update-btn').href = this.value;
+
+        // Disable update button if no option selected
+        checkSelectField($salesSelect, $salesUpdateBtn)
     });
 
     // Click event on each update button
     buttonList.forEach((element, index) => {
         element.addEventListener("click", function () {
-            // Alert with a toast
-            M.toast({ html: 'This may be a minute' })
+            if (element.href !== "javascript:void(0)") {
+                // Alert with a toast
+                M.toast({ html: 'This may be a minute' });
 
-            // Dimmer
-            dimPage();
+                // Dimmer
+                dimPage();
 
-            // Disable all buttons
-            disableButtons(buttonList);
+                // Disable all buttons
+                disableButtons(buttonList);
+            }
         });
     })
 });

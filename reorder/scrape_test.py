@@ -36,6 +36,13 @@ def configure_request(url):
     return url, headers, params
 
 
+def get_time_now():
+    time_now = dt.datetime.today() - dt.timedelta(hours=7)
+    time_now = time_now.strftime("%m/%d/%y %I:%M %p")
+
+    return time_now
+
+
 async def fetch(session, url):
     url, headers, params = configure_request(url)
     async with session.get(url, headers=headers, params=params) as resp:
@@ -95,9 +102,9 @@ def get_products_response(products_skus):
     return products_dict
 
 
-def get_stock_query():
+def get_stock_query(brand):
     # Grab products from mongodb
-    products = mongo.db.reorder.find_one({"name": "products"})
+    products = mongo.db.reorder.find_one({"name": "products", "brand": brand})
 
     guid_list = []
 
@@ -113,8 +120,8 @@ def get_stock_query():
     return query
 
 
-async def run_stock():
-    query = get_stock_query()
+async def run_stock(brand):
+    query = get_stock_query(brand)
 
     url = f"https://api.unleashedsoftware.com/StockOnHand?productId={query}&pageSize=1000"
     async with aiohttp.ClientSession() as session:
@@ -132,11 +139,11 @@ async def run_stock():
         return soh_dict
 
 
-def get_soh_response():
+def get_soh_response(brand):
     # loop = asyncio.get_event_loop()
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    stock_on_hand = loop.run_until_complete(run_stock())
+    stock_on_hand = loop.run_until_complete(run_stock(brand))
     loop.close()
 
     print("get_soh_response completed")
@@ -194,7 +201,7 @@ async def get_sales_urls(session, url, start_date, end_date):
         return my_list
 
 
-async def run_sell_through(num_months):
+async def run_sales_orders(num_months):
     start_date, end_date = get_date_range(num_months)
     url = f"https://api.unleashedsoftware.com/SalesOrders/1?completedAfter={start_date}&completedBefore={end_date}&pageSize=200"
     async with aiohttp.ClientSession() as session:
@@ -204,28 +211,30 @@ async def run_sell_through(num_months):
         tasks = [asyncio.ensure_future(fetch(session, url)) for url in urls]
         sales_orders = await asyncio.gather(*tasks)
 
-        sell_through = await splice_sales_orders(sales_orders)
+        sales_orders_data = await splice_sales_orders(sales_orders)
 
-        return sell_through
+        return sales_orders_data
 
 
-def get_sell_through(num_months):
+def get_sales_orders(num_months):
     # loop = asyncio.get_event_loop()
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    sell_through = loop.run_until_complete(run_sell_through(num_months))
+    sales_orders_data = loop.run_until_complete(run_sales_orders(num_months))
     loop.close()
 
-    print("get_sell_through completed")
-    return sell_through
+    print("get_sales_orders completed")
+    return sales_orders_data
 
 
-def format_sell_through(sell_through, kits):
-    df = pd.DataFrame(sell_through)
+def format_sell_through(sales_orders_data, kits):
+    df = pd.DataFrame(sales_orders_data)
 
     # Drop nan values
     df = df.dropna().reset_index(drop=True)
+
+    print(df.columns)
 
     reduced_order_quantities = []
 
@@ -338,12 +347,32 @@ def initalize_stock_data(brand):
     return stock_data
 
 
-def create_full_table(brand, num_months, kits):
+def initialize_sales_data(num_months):
+    # Grab soh from mongodb
+    sales_orders = mongo.db.reorder.find_one(
+        {"name": "sales_orders", "num_months": num_months})
+
+    sales_orders_data = sales_orders["items"]
+
+    return sales_orders_data
+
+
+def initialize_kits(brand):
+    # Find reorder dictionary in mongodb
+    reorder = mongo.db.reorder.find_one({"name": "kit_boms", "brand": brand})
+
+    kits = reorder["items"]
+
+    return kits
+
+
+def create_full_table(brand, num_months):
+    # Grab all data from documents need to calculate sell through
     stock_data = initalize_stock_data(brand)
+    sales_orders_data = initialize_sales_data(num_months)
+    kits = initialize_kits(brand)
 
-    sell_through = get_sell_through(num_months)
-
-    sell_through_data = format_sell_through(sell_through, kits)
+    sell_through_data = format_sell_through(sales_orders_data, kits)
 
     stock_df = pd.DataFrame(stock_data)
 
@@ -382,15 +411,11 @@ def create_full_table(brand, num_months, kits):
 
 
 def scrape(brand, num_months):
-    # Find reorder dictionary in mongodb
-    reorder = mongo.db.reorder.find_one({"name": "kit_boms"})
-
-    kits = reorder["items"]
-
+    # Instantiate data dictionary
     data = {}
 
-    last_update = dt.datetime.today().strftime("%m/%d/%y %I:%M %p")
-    reorder_data = create_full_table(brand, num_months, kits)
+    last_update = get_time_now()
+    reorder_data = create_full_table(brand, num_months)
 
     data["brand"] = brand
     data["months_past_sellthrough"] = num_months
