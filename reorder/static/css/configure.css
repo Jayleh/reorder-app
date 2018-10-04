@@ -5,7 +5,7 @@ h1 {
     text-align: center;
 }
 
-#flash-toast {
+.flash-toast {
     position: unset;
     margin: 0;
 }
@@ -15,12 +15,22 @@ h1 {
     margin: 0;
 }
 
-th {
-    padding: 27px 5px;
+#products-table th {
+    padding: 19px 5px;
 }
 
-thead tr th:first-child,
-tbody tr td:first-child {
+#products-table thead tr th:nth-child(2),
+#products-table tbody tr td:nth-child(2) {
+  max-width: 12em;
+  word-break: break-all;
+}
+
+#kits-table th {
+    padding: 22px 5px;
+}
+
+#kits-table thead tr th:nth-child(2),
+#kits-table tbody tr td:nth-child(2) {
   max-width: 8em;
   word-break: break-all;
 }
@@ -32,7 +42,7 @@ tbody tr td:first-child {
     margin: 0;
 }
 
-#save-kits-title {
+.card-panel-title {
     font-size: 16px;
     margin: 10px 0 8px 0;
 }
@@ -63,7 +73,7 @@ tbody tr td:first-child {
 @media (min-width: 992px) {
     td,
     th {
-        padding: 10px 5px;
+        padding: 0 5px;
     }
 
     tbody tr td:last-child {
@@ -74,12 +84,17 @@ tbody tr td:first-child {
 
 /* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
-    thead tr th:first-child,
-    tbody tr td:first-child {
-        max-width: 6em;
+    #products-table thead tr th:nth-child(2),
+    #products-table tbody tr td:nth-child(2) {
+        max-width: 8em;
     }
 
-    #save-panel{
+    #kits-table thead tr th:nth-child(2),
+    #kits-table tbody tr td:nth-child(2) {
+        max-width: 5em;
+    }
+
+    .save-panel{
         position: fixed;
         left: 1%;
         bottom: 3%;

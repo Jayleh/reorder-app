@@ -60,7 +60,7 @@
     <div class="col s12 m6 l12">
       <div class="card-panel">
         <div class="select-container">
-          <p class="card-panel-title">Update Stock On Hand</p>
+          <p class="card-panel-title">Stock On Hand Database</p>
           <a id="soh-update-btn" href="/update-soh/{{ reorder.brand }}" class="btn waves-effect waves-light update-btn">Update</a>
         </div>
         <div>
@@ -70,7 +70,7 @@
     </div>
     <div class="col s12 m6 l12">
       <div class="card-panel">
-        <p class="card-panel-title">Update Sales Orders Database</p>
+        <p class="card-panel-title">Sales Orders Database</p>
         <div class="select-container">
           <div class="input-field">
             <select id="sales-group-select">
@@ -94,25 +94,27 @@
 {% endblock header %}
 {% block main %}
 <div class="container">
-  <table class="responsive-table highlight">
-    <thead>
-      <tr>
-        <th></th>
-        <th class="text-left">Product Code</th>
-        <th class="text-left">Description</th>
-        <th class="text-right">Stock On Hand</th>
-        <th class="text-right">Threshold</th>
-        <th class="text-right">Gauge</th>
-        <th class="text-right">Allocated Quantity</th>
-        <th class="text-right">Total Sales</th>
-        <th class="text-right">Avg. Monthly Sales</th>
-        <th class="text-right">Max Monthly Sales</th>
-        <th class="text-right">Lead Time Demand</th>
-        <th class="text-right">Safety Stock</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="row">
+    <table class="responsive-table highlight">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="text-left">Product Code</th>
+          <th class="text-left">Description</th>
+          <th class="text-right">Stock On Hand</th>
+          <th class="text-right">Threshold</th>
+          <th class="text-right">Gauge</th>
+          <th class="text-right">Allocated Quantity</th>
+          <th class="text-right">Total Sales</th>
+          <th class="text-right">Avg. Monthly Sales</th>
+          <th class="text-right">Max Monthly Sales</th>
+          <th class="text-right">Lead Time Demand</th>
+          <th class="text-right">Safety Stock</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 </div>
 <div id="preloader-container">
   <div class="spinner">

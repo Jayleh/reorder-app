@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 {% block title %}
-<title>Kits</title>
+<title>{{ reorder.brand }} Products</title>
 {% endblock %}
 {% block styles %}
 <!-- External CSS -->
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/kits.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/configure.css') }}">
 {% endblock styles %}
 {% block main %}
 <div class="container">
@@ -18,9 +18,9 @@
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
       {% for category, message in messages %}
-      <div id="flash-toast" class="toast" style="{{ category }}">
+      <div class="toast flash-toast" style="{{ category }}">
         {{ message }}
-        <i id="flash-close" class="material-icons">cancel</i>
+        <i class="material-icons flash-close">cancel</i>
       </div>
       {% endfor %}
       {% endif %}
@@ -32,9 +32,10 @@
   <div class="row">
     <div class="col s12">
       <form method="POST" action="/save-products/{{ reorder.brand }}">
-        <table class="responsive-table">
+        <table id="products-table" class="responsive-table">
           <thead>
             <tr>
+              <th></th>
               <th>Product</th>
               <th>Description</th>
               <th></th>
@@ -43,6 +44,7 @@
           <tbody>
             {% for product in products %}
             <tr>
+              <td><strong>{{ loop.index }}</strong></td>
               <td>
                 <div class="input-field">
                   <input name="product" value="{{ product.product_code }}">
@@ -59,15 +61,16 @@
             </tr>
             {% endfor %}
             <tr>
+              <td></td>
               <td>
                 <div class="input-field">
-                  <input id="main-sku" placeholder="Products" type="text" class="validate">
+                  <input id="new-product" placeholder="Products" type="text" class="validate">
                   <!-- <label for="main_sku">Products</label> -->
                 </div>
               </td>
               <td></td>
               <td>
-                <a id="add-row-btn" class="btn-small waves-effect waves-light">
+                <a class="btn-small waves-effect waves-light add-row-btn">
                   <i class="material-icons center">
                     add_circle_outline
                   </i>
@@ -76,13 +79,13 @@
             </tr>
           </tbody>
         </table>
-        <div id="save-panel" class="card-panel">
+        <div class="card-panel save-panel">
           <div class="flex-center">
-            <p id="save-kits-title">Update Products</p>
+            <p class="card-panel-title">Update Products</p>
             <!-- Save Button Modal Trigger -->
-            <button id="save-kits-btn" data-target="modal1" class="btn modal-trigger">Save</button>
+            <button data-target="modal1" class="btn modal-trigger save-btn">Save</button>
           </div>
-          <p class="last-update-time"><em>Last update on PST</em></p>
+          <p class="last-update-time"><em>Last update on {{ reorder.last_update }} PST</em></p>
         </div>
         <!-- Save Button Modal Structure -->
         <div id="modal1" class="modal">
@@ -109,6 +112,13 @@
   </div>
 </div>
 {% endblock main %}
+{% block action_links %}
+<li>
+  <a href="/{{ reorder.brand }}" class="btn-floating tooltipped" data-position="left" data-tooltip="{{ reorder.brand }} Home">
+    <i class="material-icons">home</i>
+  </a>
+</li>
+{% endblock action_links %}
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/products.js') }}"></script>
 {% endblock scripts %}

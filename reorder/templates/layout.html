@@ -32,13 +32,14 @@
               <i class="material-icons">gesture</i>
             </a>
           </li>
+          {% block action_links %} {% endblock %}
           <li>
-            <a href="/products/{{ reorder.brand }}" class="btn-floating tooltipped" data-position="left" data-tooltip="{{ reorder.brand }} Products">
+            <a href="/products/{{ reorder.brand }}" class="btn-floating tooltipped blue-grey" data-position="left" data-tooltip="{{ reorder.brand }} Products">
               <i class="material-icons">build</i>
             </a>
           </li>
           <li>
-            <a href="/kits/{{ reorder.brand }}" class="btn-floating tooltipped orange" data-position="left"
+            <a href="/kits/{{ reorder.brand }}" class="btn-floating tooltipped deep-orange" data-position="left"
               data-tooltip="{{ reorder.brand }} Kits">
               <i class="material-icons">line_style</i>
             </a>

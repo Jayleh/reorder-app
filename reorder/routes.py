@@ -126,13 +126,57 @@ def save_products(brand):
                     code for code in product_codes if code not in products_skus]
                 new_products_skus = [sku for sku in products_skus if sku not in product_codes]
 
-                if removed_products_codes:
+                if removed_products_codes and new_products_skus:
+                    # Remove products first
                     for i, product in enumerate(products):
                         if product["product_code"] in removed_products_codes:
                             # Delete product
                             del products[i]
 
-                    print(f"Removed Products: {removed_products_codes}")
+                    # Call get products function to return chosen products
+                    products_responses = get_products_response(new_products_skus)
+
+                    # Grab only the chosen products
+                    new_products_data = splice_products(new_products_skus, products_responses)
+
+                    new_products = new_products_data["items"]
+
+                    # Add new skus second to updated products
+                    products.extend(new_products)
+
+                    # Alphabetize products
+                    products = sort_products(products)
+
+                    # Create reorder collection
+                    reorder = mongo.db.reorder
+
+                    # Update specific document
+                    reorder.update_one(
+                        {"name": "products", "brand": brand},
+                        {'$set': {'items': products, 'last_update': last_update}}
+                    )
+
+                    flash(f"Products successfully updated. \
+                    Added Products: {new_products_skus}. \
+                    Removed Products: {removed_products_codes}.",
+                          "background-color: #64b5f6;")
+                elif removed_products_codes:
+                    # Alphabetize products
+                    products = sort_products(products)
+
+                    # Create reorder collection
+                    reorder = mongo.db.reorder
+
+                    # Update specific document
+                    reorder.update_one(
+                        {"name": "products", "brand": brand},
+                        {'$set': {'items': products, 'last_update': last_update}}
+                    )
+
+                    flash(f"Products successfully updated. \
+                    Removed Products: {removed_products_codes}. \
+                    No products have been added.",
+                          "background-color: #64b5f6;")
                 elif new_products_skus:
                     # Call get products function to return chosen products
                     products_responses = get_products_response(new_products_skus)
@@ -157,21 +201,12 @@ def save_products(brand):
                         {'$set': {'items': products, 'last_update': last_update}}
                     )
 
-                if new_products_skus and removed_products_codes:
-                    flash(f"Products successfully updated.\
-                    Added Products: {new_products_skus}\
-                    Removed Products: {removed_products_codes}",
-                          "background-color: #64b5f6;")
-                elif new_products_skus and not removed_products_codes:
-                    flash(f"Products successfully updated.\
-                    Added Products: {new_products_skus}\
+                    flash(f"Products successfully updated. \
+                    Added Products: {new_products_skus}. \
                     No products have been removed.",
                           "background-color: #64b5f6;")
-                elif not new_products_skus and removed_products_codes:
-                    flash(f"Products successfully updated.\
-                    Removed Products: {removed_products_codes}\
-                    No products have been added.",
-                          "background-color: #64b5f6;")
+                else:
+                    flash("No changes have been made!", "background-color: #e57373;")
             else:
                 print("New")
                 # Call get products function to return chosen products
