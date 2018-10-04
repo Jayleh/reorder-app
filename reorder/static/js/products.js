@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
             cell3.innerHTML = '<a class="btn-small waves-effect waves-light red remove-row-btn" onclick="removeRow(this)"><i class="material-icons center">remove_circle_outline</i></a>';
 
             // Reset input fields
-            $mainSku.value = null;
+            $newProduct.value = null;
         }
         else {
             // Alert with a toast
