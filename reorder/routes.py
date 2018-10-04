@@ -51,7 +51,11 @@ def home():
     # Grab soh from mongodb
     stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
 
-    return render_template("index.html", reorder=reorder, soh_data=stock_on_hand)
+    # Grab soh from mongodb
+    sales_orders = mongo.db.reorder.find_one({"name": "sales_orders"})
+
+    return render_template("index.html", reorder=reorder, stock_on_hand=stock_on_hand,
+                           sales_orders=sales_orders)
 
 
 @app.route("/<brand>")
@@ -63,7 +67,11 @@ def table(brand):
     # Grab soh from mongodb
     stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
 
-    return render_template("index.html", reorder=reorder, soh_data=stock_on_hand)
+    # Grab soh from mongodb
+    sales_orders = mongo.db.reorder.find_one({"name": "sales_orders"})
+
+    return render_template("index.html", reorder=reorder, stock_on_hand=stock_on_hand,
+                           sales_orders=sales_orders)
 
 
 @app.route("/partners")
