@@ -169,6 +169,12 @@ def save_products(brand):
                     Removed Products: {removed_products_codes}.",
                           "background-color: #64b5f6;")
                 elif removed_products_codes:
+                    # Remove products first
+                    for i, product in enumerate(products):
+                        if product["product_code"] in removed_products_codes:
+                            # Delete product
+                            del products[i]
+
                     # Alphabetize products
                     products = sort_products(products)
 
@@ -341,7 +347,7 @@ def update(brand, num_months):
               "background-color: #64b5f6;")
 
     except Exception as e:
-        print(e)
+        raise
         flash("Reorder plan update was unsuccessful.",
               "background-color: #e57373;")
 
