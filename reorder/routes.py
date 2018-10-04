@@ -1,13 +1,42 @@
-import datetime as dt
+from operator import itemgetter
 from flask import render_template, jsonify, redirect, url_for, flash, request
 from reorder import app, db, mongo, bcrypt
 from reorder.forms import RegistrationForm, LoginForm
 from reorder.models import User
 from flask_login import login_user, current_user, logout_user, login_required
-from reorder.scrape_test import (get_products_response, splice_products, get_soh_response,
-                                 initalize_stock_data, get_sales_orders, format_sell_through,
-                                 get_time_now, scrape)
+from reorder.scrape_test import (get_products_response, splice_products, sort_products,
+                                 get_soh_response, initalize_stock_data, get_sales_orders,
+                                 format_sell_through, get_time_now, scrape)
 from reorder.kits import convert_to_kits, format_kits_dict
+
+
+def replace_products(products_skus, brand, last_update):
+    # Call get products function to return chosen products
+    products_responses = get_products_response(products_skus)
+
+    # Grab only the chosen products
+    products = splice_products(products_skus, products_responses)
+
+    # Alphabetize products
+    products = sort_products(products)
+
+    # Label collection
+    products["name"] = "products"
+    products["brand"] = brand
+    products["last_update"] = last_update
+
+    # Create reorder collection
+    reorder = mongo.db.reorder
+
+    # Replace specific doc in collection with data, if not found insert new doc
+    reorder.replace_one(
+        {"name": "products", "brand": brand},
+        products,
+        upsert=True
+    )
+
+    flash("Products successfully updated.",
+          "background-color: #64b5f6;")
 
 
 @app.route("/")
@@ -73,34 +102,104 @@ def products_partners(brand):
 def save_products(brand):
     if request.method == "POST":
         try:
+            # Grab skus from form
             products_skus = request.form.getlist("product")
 
-            # Create reorder collection
-            reorder = mongo.db.reorder
-
-            # Call get products function to return chosen products
-            products_responses = get_products_response(products_skus)
-
-            # Grab only the chosen products
-            products = splice_products(products_skus, products_responses)
-
-            # Label collection
-            products["name"] = "products"
-            products["brand"] = brand
+            # Find products document in mongodb
+            products_data = mongo.db.reorder.find_one({"name": "products", "brand": brand})
 
             # Record time of update
             last_update = get_time_now()
-            products["last_update"] = last_update
 
-            # Replace specific document in collection with data, if not found insert new collection
-            reorder.replace_one(
-                {"name": "products", "brand": brand},
-                products,
-                upsert=True
-            )
+            if products_data:
+                products = products_data["items"]
 
-            flash("Products successfully updated.",
-                  "background-color: #64b5f6;")
+                # Extract product codes from the list of dictionaries
+                product_codes = []
+
+                for product in products:
+                    for key, value in product.items():
+                        if key == "product_code":
+                            product_codes.append(value)
+
+                removed_products_codes = [
+                    code for code in product_codes if code not in products_skus]
+                new_products_skus = [sku for sku in products_skus if sku not in product_codes]
+
+                if removed_products_codes:
+                    for i, product in enumerate(products):
+                        if product["product_code"] in removed_products_codes:
+                            # Delete product
+                            del products[i]
+
+                    print(f"Removed Products: {removed_products_codes}")
+                elif new_products_skus:
+                    # Call get products function to return chosen products
+                    products_responses = get_products_response(new_products_skus)
+
+                    # Grab only the chosen products
+                    new_products_data = splice_products(new_products_skus, products_responses)
+
+                    new_products = new_products_data["items"]
+
+                    # Add new products to existing products
+                    products.extend(new_products)
+
+                    # Alphabetize products
+                    products = sort_products(products)
+
+                    # Create reorder collection
+                    reorder = mongo.db.reorder
+
+                    # Update specific document
+                    reorder.update_one(
+                        {"name": "products", "brand": brand},
+                        {'$set': {'items': products, 'last_update': last_update}}
+                    )
+
+                if new_products_skus and removed_products_codes:
+                    flash(f"Products successfully updated.\
+                    Added Products: {new_products_skus}\
+                    Removed Products: {removed_products_codes}",
+                          "background-color: #64b5f6;")
+                elif new_products_skus and not removed_products_codes:
+                    flash(f"Products successfully updated.\
+                    Added Products: {new_products_skus}\
+                    No products have been removed.",
+                          "background-color: #64b5f6;")
+                elif not new_products_skus and removed_products_codes:
+                    flash(f"Products successfully updated.\
+                    Removed Products: {removed_products_codes}\
+                    No products have been added.",
+                          "background-color: #64b5f6;")
+            else:
+                print("New")
+                # Call get products function to return chosen products
+                products_responses = get_products_response(products_skus)
+
+                # Grab only the chosen products
+                products = splice_products(products_skus, products_responses)
+
+                # Alphabetize products
+                products = sort_products(products)
+
+                # Label collection
+                products["name"] = "products"
+                products["brand"] = brand
+                products["last_update"] = last_update
+
+                # Create reorder collection
+                reorder = mongo.db.reorder
+
+                # Replace specific doc in collection with data, if not found insert new doc
+                reorder.replace_one(
+                    {"name": "products", "brand": brand},
+                    products,
+                    upsert=True
+                )
+
+                flash("Products successfully updated.",
+                      "background-color: #64b5f6;")
 
         except Exception as e:
             print(e)

@@ -56,6 +56,12 @@ def get_products_urls(product_skus):
     return products_urls
 
 
+def sort_products(products):
+    sorted_products = sorted(products, key=itemgetter('product_code'))
+
+    return sorted_products
+
+
 def splice_products(products_skus, products_responses):
     products = []
 
@@ -70,8 +76,6 @@ def splice_products(products_skus, products_responses):
                     "description": item["ProductDescription"],
                     "guid": item["Guid"]
                 })
-
-    products = sorted(products, key=itemgetter('product_code'))
 
     product_dict = {"items": products}
 
@@ -233,8 +237,6 @@ def format_sell_through(sales_orders_data, kits):
 
     # Drop nan values
     df = df.dropna().reset_index(drop=True)
-
-    print(df.columns)
 
     reduced_order_quantities = []
 
