@@ -254,7 +254,7 @@ def format_sell_through(sales_orders_data, kits):
 
                     added_quantities = {
                         "product_code": child,
-                        "order_quantity": quantity * product_order_quantity,
+                        "order_quantity": int(quantity) * int(product_order_quantity),
                         "completed_date": completed_date
                     }
 
@@ -302,8 +302,8 @@ def format_sell_through(sales_orders_data, kits):
                                   2.75) - summary_df["lead_time_demand"]
     summary_df["threshold"] = summary_df["lead_time_demand"] + summary_df["safety_stock"]
 
-    summary_df[["avg_monthly_usage", "lead_time_demand", "safety_stock", "threshold"]] = summary_df[[
-        "avg_monthly_usage", "lead_time_demand", "safety_stock", "threshold"]].round()
+    summary_df[["avg_monthly_usage", "lead_time_demand", "safety_stock", "threshold"]] = \
+        summary_df[["avg_monthly_usage", "lead_time_demand", "safety_stock", "threshold"]].round()
 
     sell_through_data = summary_df.to_dict(orient="records")
 
@@ -396,8 +396,10 @@ def create_full_table(brand, num_months):
 
     merged_df["display_percentage"] = merged_df["display_percentage"].round()
 
-    merged_df = merged_df[["product_code", "description", "stock_on_hand", "threshold", "display_percentage", "allocated_quantity",
-                           "order_quantity", "num_months", "avg_monthly_usage", "max_monthly_usage", "lead_time_demand", "safety_stock"]]
+    merged_df = merged_df[["product_code", "description", "stock_on_hand", "threshold",
+                           "display_percentage", "allocated_quantity", "order_quantity",
+                           "num_months", "avg_monthly_usage", "max_monthly_usage",
+                           "lead_time_demand", "safety_stock"]]
 
     kit_list = [key for key in kits.keys()]
 
