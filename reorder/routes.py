@@ -347,7 +347,7 @@ def update(brand, num_months):
               "background-color: #64b5f6;")
 
     except Exception as e:
-        raise
+        print(e)
         flash("Reorder plan update was unsuccessful.",
               "background-color: #e57373;")
 
@@ -394,6 +394,9 @@ def update_soh(brand):
 @login_required
 def update_sales(brand, num_months):
     try:
+        # Make sure num_months is a string
+        num_months = str(num_months)
+
         # Create reorder collection
         reorder = mongo.db.reorder
 

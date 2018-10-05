@@ -178,7 +178,7 @@ async def splice_sales_orders(sales_orders):
     for response in sales_orders:
 
         for item in response["Items"]:
-            completed_date = item["CompletedDate"]
+            order_date = item["OrderDate"]
 
             for line in item["SalesOrderLines"]:
                 product_code = line["Product"]["ProductCode"]
@@ -186,7 +186,7 @@ async def splice_sales_orders(sales_orders):
                 sell_through.append({
                     "product_code": product_code,
                     "order_quantity": order_quantity,
-                    "completed_date": completed_date
+                    "order_date": order_date
                 })
 
     return sell_through
@@ -199,7 +199,7 @@ async def get_sales_urls(session, url, start_date, end_date):
         num_pages = data["Pagination"]["NumberOfPages"]
 
         partial_url = 'https://api.unleashedsoftware.com/SalesOrders/'
-        my_list = [f"{partial_url}{i}?completedAfter={start_date}&completedBefore={end_date}&pageSize=200" for i in range(
+        my_list = [f"{partial_url}{i}?startDate={start_date}&endDate={end_date}&pageSize=200" for i in range(
             1, num_pages + 1)]
 
         return my_list
@@ -207,7 +207,7 @@ async def get_sales_urls(session, url, start_date, end_date):
 
 async def run_sales_orders(num_months):
     start_date, end_date = get_date_range(num_months)
-    url = f"https://api.unleashedsoftware.com/SalesOrders/1?completedAfter={start_date}&completedBefore={end_date}&pageSize=200"
+    url = f"https://api.unleashedsoftware.com/SalesOrders/1?startDate={start_date}&endDate={end_date}&pageSize=200"
     async with aiohttp.ClientSession() as session:
         urls = await get_sales_urls(session, url, start_date, end_date)
         print(urls)
@@ -235,8 +235,11 @@ def get_sales_orders(num_months):
 def format_sell_through(sales_orders_data, kits):
     df = pd.DataFrame(sales_orders_data)
 
-    # Drop nan values
-    df = df.dropna().reset_index(drop=True)
+    # Make sure order quantity is numeric, cell isn't convert to NaN
+    df["order_quantity"] = pd.to_numeric(df["order_quantity"], errors="coerce")
+
+    # Drop NaN values
+    df = df.dropna(subset=["order_quantity"]).reset_index(drop=True)
 
     reduced_order_quantities = []
 
@@ -244,7 +247,7 @@ def format_sell_through(sales_orders_data, kits):
 
         product = row["product_code"]
         product_order_quantity = row["order_quantity"]
-        completed_date = row["completed_date"]
+        order_date = row["order_date"]
 
         for finished_product, children in kits.items():
 
@@ -254,8 +257,8 @@ def format_sell_through(sales_orders_data, kits):
 
                     added_quantities = {
                         "product_code": child,
-                        "order_quantity": int(quantity) * int(product_order_quantity),
-                        "completed_date": completed_date
+                        "order_quantity": quantity * product_order_quantity,
+                        "order_date": order_date
                     }
 
                     reduced_order_quantities.append(added_quantities)
@@ -267,13 +270,13 @@ def format_sell_through(sales_orders_data, kits):
 
     for i, row in concat_df.iterrows():
 
-        completed_date = row["completed_date"]
+        order_date = row["order_date"]
 
-        converted_timestamp = format_date(completed_date)
+        converted_timestamp = format_date(order_date)
 
-        concat_df.at[concat_df.index[i], 'completed_date'] = converted_timestamp
+        concat_df.at[concat_df.index[i], "order_date"] = converted_timestamp
 
-    grouped_prod_date = concat_df.groupby(["product_code", "completed_date"])
+    grouped_prod_date = concat_df.groupby(["product_code", "order_date"])
 
     grouped_prod_date = grouped_prod_date.sum()
 
@@ -285,7 +288,7 @@ def format_sell_through(sales_orders_data, kits):
     avg_order_quantity = grouped_prod_num_months["order_quantity"].mean()
     max_order_quantity = grouped_prod_num_months["order_quantity"].max()
 
-    num_months = grouped_prod_num_months["completed_date"].count()
+    num_months = grouped_prod_num_months["order_date"].count()
 
     summary_df = pd.DataFrame({"order_quantity": total_order_quantity,
                                "num_months": num_months,
