@@ -8,6 +8,7 @@ from reorder.scrape_test import (get_products_response, splice_products, sort_pr
                                  get_soh_response, initalize_stock_data, get_sales_orders,
                                  format_sell_through, get_time_now, scrape)
 from reorder.kits import convert_to_kits, format_kits_dict
+from pprint import pprint
 
 
 def replace_products(products_skus, brand, last_update):
@@ -51,8 +52,15 @@ def home():
     # Grab soh from mongodb
     stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
 
-    # Grab soh from mongodb
-    sales_orders = mongo.db.reorder.find_one({"name": "sales_orders"})
+    # Grab sales from mongodb
+    sales_orders = {}
+    sales_orders_3 = mongo.db.reorder.find_one({"name": "sales_orders", "num_months": "3"})
+    sales_orders_6 = mongo.db.reorder.find_one({"name": "sales_orders", "num_months": "6"})
+    sales_orders_12 = mongo.db.reorder.find_one({"name": "sales_orders", "num_months": "12"})
+
+    sales_orders["last_update_3"] = sales_orders_3["last_update"]
+    sales_orders["last_update_6"] = sales_orders_6["last_update"]
+    sales_orders["last_update_12"] = sales_orders_12["last_update"]
 
     return render_template("index.html", reorder=reorder, stock_on_hand=stock_on_hand,
                            sales_orders=sales_orders)
@@ -67,8 +75,15 @@ def table(brand):
     # Grab soh from mongodb
     stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand", "brand": brand})
 
-    # Grab soh from mongodb
-    sales_orders = mongo.db.reorder.find_one({"name": "sales_orders"})
+    # Grab sales from mongodb
+    sales_orders = {}
+    sales_orders_3 = mongo.db.reorder.find_one({"name": "sales_orders", "num_months": "3"})
+    sales_orders_6 = mongo.db.reorder.find_one({"name": "sales_orders", "num_months": "6"})
+    sales_orders_12 = mongo.db.reorder.find_one({"name": "sales_orders", "num_months": "12"})
+
+    sales_orders["last_update_3"] = sales_orders_3["last_update"]
+    sales_orders["last_update_6"] = sales_orders_6["last_update"]
+    sales_orders["last_update_12"] = sales_orders_12["last_update"]
 
     return render_template("index.html", reorder=reorder, stock_on_hand=stock_on_hand,
                            sales_orders=sales_orders)

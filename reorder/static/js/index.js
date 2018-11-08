@@ -129,9 +129,29 @@ document.addEventListener('DOMContentLoaded', function () {
         checkSelectField($sellSelect, $updateBtn)
     });
 
+    const salesUpdateTime = document.querySelector("[data-js=sales-update-time]");
+    const updateTimes = Array.from(salesUpdateTime.children);
+
+    // Make sales last update times invisible
+    salesUpdateTime.style.display = "none";
+
     $salesSelect.addEventListener('change', function () {
+        // Show sales last update times
+        salesUpdateTime.style.display = "block";
+
         // Change href value for sales orders update
         document.querySelector('#sales-update-btn').href = this.value;
+
+        const numberMonths = this.value.match(/\d+/)[0];
+
+        updateTimes.forEach((element, index) => {
+            if (element.getAttribute("value") !== numberMonths) {
+                element.style.display = "none";
+            }
+            else {
+                element.style.display = "block";
+            }
+        });
 
         // Disable update button if no option selected
         checkSelectField($salesSelect, $salesUpdateBtn)
