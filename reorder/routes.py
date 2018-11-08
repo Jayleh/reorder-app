@@ -1,4 +1,3 @@
-from operator import itemgetter
 from flask import render_template, jsonify, redirect, url_for, flash, request
 from reorder import app, db, mongo, bcrypt
 from reorder.forms import RegistrationForm, LoginForm
@@ -8,7 +7,6 @@ from reorder.scrape_test import (get_products_response, splice_products, sort_pr
                                  get_soh_response, initalize_stock_data, get_sales_orders,
                                  format_sell_through, get_time_now, scrape)
 from reorder.kits import convert_to_kits, format_kits_dict
-from pprint import pprint
 
 
 def replace_products(products_skus, brand, last_update):
