@@ -404,9 +404,9 @@ def create_full_table(brand, num_months):
                            "num_months", "avg_monthly_usage", "max_monthly_usage",
                            "lead_time_demand", "safety_stock"]]
 
-    kit_list = [key for key in kits.keys()]
+    # kit_list = [key for key in kits.keys()]
 
-    merged_df = merged_df[~merged_df["product_code"].isin(kit_list)]
+    # merged_df = merged_df[~merged_df["product_code"].isin(kit_list)]
 
     merged_df = merged_df.sort_values(by=["display_percentage"]).reset_index(drop=True)
 

@@ -48,7 +48,7 @@ def home():
     reorder = mongo.db.reorder.find_one({"brand": brand})
 
     # Grab soh from mongodb
-    stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand"})
+    stock_on_hand = mongo.db.reorder.find_one({"name": "stock_on_hand", "brand": brand})
 
     # Grab sales from mongodb
     sales_orders = {}
