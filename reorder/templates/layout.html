@@ -16,11 +16,11 @@
 
   <body>
 
-    <header>
+    <header class="header">
       {% block header %} {% endblock %}
     </header>
 
-    <main>
+    <main class="main">
       {% block main %} {% endblock %}
       <div class="fixed-action-btn">
         <a class="btn-floating btn-large blue">
@@ -34,7 +34,8 @@
           </li>
           {% block action_links %} {% endblock %}
           <li>
-            <a href="/products/{{ reorder.brand }}" class="btn-floating tooltipped blue" data-position="left" data-tooltip="{{ reorder.brand }} Products">
+            <a href="/products/{{ reorder.brand }}" class="btn-floating tooltipped blue" data-position="left"
+              data-tooltip="{{ reorder.brand }} Products">
               <i class="material-icons">build</i>
             </a>
           </li>
